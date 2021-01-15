@@ -72,19 +72,6 @@ public :
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 
-   virtual void UserInit(Long64_t nentries);
-   virtual void leitura_pesos();
-   virtual void leitura_calibracao();
-   virtual void leitura_coef_den();
-   virtual void Est_MFMuon();
-   virtual void Est_Denoising_Muon();
-   virtual void Eficiencia();
-   virtual void Est_MFRuido();
-   virtual void Est_Denoising_Ruido();
-   virtual void Fill_hist();
-   virtual void save_hist();
-   virtual void detec_falsoa();
-   virtual void plot_ROC();
    virtual void SalveMuons();
 
    Float_t mf[2][64][4];
@@ -148,7 +135,7 @@ Muons::Muons(TTree *tree) : fChain(0)
       // The following code should be used if you want this class to access a chain
       // of trees.
       TChain * chain = new TChain("Data","");
-      chain->Add("/home/mari/Documentos/Treinamento_analise/ic/DataTileMuon_EB.root/Data");
+      chain->Add("/home/mel/VBox/Muons/DataTileMuon_EB.root/Data");
       tree = chain;
 #endif // SINGLE_TREE
 

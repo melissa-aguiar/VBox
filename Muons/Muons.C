@@ -62,26 +62,17 @@ void Muons::Loop()
 
    Long64_t nbytes = 0, nb = 0;
 
-   Muons::UserInit(nentries);
-   Muons::leitura_pesos();
-   Muons::leitura_calibracao();
-   Muons::leitura_coef_den();
+   
 
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
-      Muons::Est_MFMuon();
-      Muons::Est_MFRuido();
-      Muons::Est_Denoising_Muon();
-      Muons::Est_Denoising_Ruido();
-      Muons::Fill_hist();
-      Muons::detec_falsoa();
-      Muons::SalveMuons();
+      
+      
    }
-   Muons::Eficiencia();
-   Muons::save_hist();
-   Muons::plot_ROC();
+   Muons::SalveMuons();
+   
    gROOT->SetBatch(0);
 }
