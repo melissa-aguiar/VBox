@@ -103,3 +103,7 @@ for pc=7:7
     end
    
 end
+
+stem(ampSinal(1:50));
+figure;
+stem(ampRuido(1:50));
