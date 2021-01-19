@@ -2,6 +2,8 @@ clear all
 close all
 clc
 
+SmpMuon = load('Sample_Muons.txt');
+
 ped = 0;
 
 %% gera os dados
@@ -26,7 +28,7 @@ sinalPuro = zeros(10000,7);
 for i=1:10000
     sinalPuro(i,:) = pegaPulseJitter();
 end
-[COEFF, SCORE, LATENT] = pca((sinalPuro*W')); %%%%%%%%%%%%%princomp
+[COEFF, SCORE, LATENT] = pca((sinalPuro*W')); %%%%%%%%%%%%%matlab nao reconheceu princomp (principal component analysis)
 
 %% alguns parametros para o filtro estocastico
 variancia = var(ruidoDes(:,4)); %parametro usado no filtro estocastico
