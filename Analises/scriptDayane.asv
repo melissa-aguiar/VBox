@@ -79,8 +79,8 @@ for pc=7:7 % 7 é randomico? é por causa do numero de amostras?
     end
 
     
-    FCestRuido = IdRuido + IrRuido; % saida do filtro pra deteccao para o ruido
-    FCestSinal = IdSinal + IrSinal; % saida do filtro pra deteccao para o sinal
+    FCestRuido = IdRuido + IrRuido; % saida do filtro pra deteccao para sinal
+    FCestSinal = IdSinal + IrSinal; % saida do filtro pra deteccao para ruido
 
     %% estimacao da amplitude 
     b1 = COEFF(:,1:N)*COEFF(:,1:N)';
