@@ -110,6 +110,9 @@ public :
    Float_t ROC_pdd[2][64][1000];
    Float_t ROC_fad[2][64][1000];
    Long64_t nentries;
+   Long64_t jentry;
+   //Float_t EBA0[2][64][4][7][50385];
+
 };
 
 #endif

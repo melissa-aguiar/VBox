@@ -63,16 +63,35 @@ void Muons::Loop()
    Long64_t nbytes = 0, nb = 0;
 
    
+   ofstream coef0;
+   coef0.open("SmpMuon.txt");
 
-   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+   for (jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
-      
-      
+
+    //Muons::SalveMuons();
+
+
+    for(int side=0;side<2;side++){
+        for(int mod=0;mod<64;mod++){
+            for(int ch=0;ch<4;ch++){
+                coef0 << side << " " << mod << " " << ch << " ";
+                for(int i=0;i<7;i++){
+                    coef0 << SmpMuon[side][mod][ch][i] << " ";
+                }
+                coef0 << endl;
+            }
+            
+        }
+    }
+
    }
-   Muons::SalveMuons();
+   coef0.close();
+  
    
+
    gROOT->SetBatch(0);
 }

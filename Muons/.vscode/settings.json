@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "Muons.C": "cpp"
+        "Muons.C": "cpp",
+        "iosfwd": "cpp",
+        "ostream": "cpp"
     }
 }
