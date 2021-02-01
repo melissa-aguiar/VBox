@@ -13,16 +13,36 @@ load('C:\Users\melis\Desktop\VBox\Analises\Filtro Deterministico\dados normaliza
 load('C:\Users\melis\Desktop\VBox\Analises\Filtro Deterministico\dados normalizados e filtrados Lado-Canal\NFL1C2.mat');
 load('C:\Users\melis\Desktop\VBox\Analises\Filtro Deterministico\dados normalizados e filtrados Lado-Canal\NFL1C3.mat');
 
+
+
 %SmpMuon = load('Sample_Muons.txt'); % | LADO[2] | MODULO[64] | CANAL[4] | AMOSTRAS[7] | ... CANAL 0, 1 é uma CELULA; 2 e 3 é outra
 
 %% LADO 0 - TODOS CANAIS
-
-for i=1:1480216
-    plot(NFL0C0(i,:))
-    hold on
-end
+figure
+plot(1:7,NFL0C0(1:100000,:))
 title('Lado 0 Canal 0')
-grid
+grid on
+
+tempo = toc/60
+
+stop = 1
+
+figure
+plot(1:7,NFL0C1(1:100000,:))
+title('Lado 0 Canal 1')
+grid on
+
+figure
+plot(1:7,NFL0C2(1:100000,:))
+title('Lado 0 Canal 2')
+grid on
+
+figure
+plot(1:7,NFL0C3(1:100000,:))
+title('Lado 0 Canal 3')
+grid on
+
+
 
 tempo = toc/60
 
@@ -46,7 +66,7 @@ grid
 
 figure
 for i=1:2685094
-    plot(NFL0C2(i,:))
+    plot(NFL0C3(i,:))
     hold on
 end
 title('Lado 0 Canal 3')

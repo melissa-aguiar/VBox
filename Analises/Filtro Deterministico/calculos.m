@@ -1,107 +1,132 @@
+%% Plotando os pulsos Lado0-Modulo0-Canais0123
+
+figure
+plot(1:7,NFL0C0M0(:,:))
+title('Lado 0 Canal 0 Modulo 0')
+grid on
+
+figure
+plot(1:7,NFL0C1M0(:,:))
+title('Lado 0 Canal 1 Modulo 0')
+grid on
+
+figure
+plot(1:7,NFL0C2M0(:,:))
+title('Lado 0 Canal 2 Modulo 0')
+grid on
+
+figure
+plot(1:7,NFL0C3M0(:,:))
+title('Lado 0 Canal 3 Modulo 0')
+grid on
+
+stop=0;
+
+
 clear all
 close all
 clc
 
-
-%% normalizando os dados que foram filtrados pra >150MeV
-load('dados filtrados Lado-Canal/FL0C0.mat');
-load('dados filtrados Lado-Canal/FL0C1.mat');
-load('dados filtrados Lado-Canal/FL0C2.mat');
-load('dados filtrados Lado-Canal/FL0C3.mat');
-load('dados filtrados Lado-Canal/FL1C0.mat');
-load('dados filtrados Lado-Canal/FL1C1.mat');
-load('dados filtrados Lado-Canal/FL1C2.mat');
-load('dados filtrados Lado-Canal/FL1C3.mat');
-
-NFL0C0 = FL0C0(:,(4:10));
-NFL0C1 = FL0C1(:,(4:10));
-NFL0C2 = FL0C2(:,(4:10));
-NFL0C3 = FL0C3(:,(4:10));
-NFL1C0 = FL1C0(:,(4:10));
-NFL1C1 = FL1C1(:,(4:10));
-NFL1C2 = FL1C2(:,(4:10));
-NFL1C3 = FL1C3(:,(4:10));
-
-for i=1:1480216
-    div = norm(NFL0C0(i,:));
-for j=1:7
-    NFL0C0(i,j)=NFL0C0(i,j)/div;
-end
-end
-
-for i=1:1478495
-    div = norm(NFL0C1(i,:));
-for j=1:7
-    NFL0C1(i,j)=NFL0C1(i,j)/div;
-end
-end
-
-for i=1:2709185
-    div = norm(NFL0C2(i,:));
-for j=1:7
-    NFL0C2(i,j)=NFL0C2(i,j)/div;
-end
-end
-
-for i=1:2685094
-    div = norm(NFL0C3(i,:));
-for j=1:7
-    NFL0C3(i,j)=NFL0C3(i,j)/div;
-end
-end
-
-for i=1:1508572
-    div = norm(NFL1C0(i,:));
-for j=1:7
-    NFL1C0(i,j)=NFL1C0(i,j)/div;
-end
-end
-
-for i=1:1539631
-    div = norm(NFL1C1(i,:));
-for j=1:7
-    NFL1C1(i,j)=NFL1C1(i,j)/div;
-end
-end
-
-for i=1:2651738
-    div = norm(NFL1C2(i,:));
-for j=1:7
-    NFL1C2(i,j)=NFL1C2(i,j)/div;
-end
-end
-
-for i=1:2693031
-    div = norm(NFL1C3(i,:));
-for j=1:7
-    NFL1C3(i,j)=NFL1C3(i,j)/div;
-end
-end
-
-stop = 1
-
-
-%% Filtrando os dados pra um valor de corte em MeV
 tic
 
-G1L0C0 = [];
-aux1 = [];
+%% Criando matrizes separando por lado, canal e modulo
+load('dados\Lado-Canal.mat');
+L0C0M0 = [];
+L0C1M0 = [];
+L0C2M0 = [];
+L0C3M0 = [];
 
-j=0;
+m=1;
 
-for i=1:3203840
-    j=j+1;
-    if Ma(i,1)>1000 %muda o canal muda o Ma
-        aux1 = [aux1; L0C2(i,:)];
+for i=m:64:3224640
+   L0C0M0 = [L0C0M0; L0C0(i,4:10)];
+end
+
+for i=m:64:3224640
+   L0C1M0 = [L0C1M0; L0C1(i,4:10)];
+end
+
+for i=m:64:3224640
+   L0C2M0 = [L0C2M0; L0C2(i,4:10)];
+end
+
+for i=m:64:3224640
+   L0C3M0 = [L0C3M0; L0C3(i,4:10)];
+end
+
+%% Filtrando os dados pra um valor de corte em MeV
+load('workspace\energia_MeV')
+
+FL0C0M0 = [];
+FL0C1M0 = [];
+FL0C2M0 = [];
+FL0C3M0 = [];
+
+for i=1:50385
+    if Ma1(i,1)>150
+        FL0C0M0 = [FL0C0M0; L0C0M0(i,:)];
     end
-    
-    if j==40000
-        G1L0C0 = [G1L0C0; aux1];
-        aux1 = [];
-        j=0;
+end
+
+for i=1:50385
+    if Ma1(i,2)>150
+        FL0C1M0 = [FL0C1M0; L0C1M0(i,:)];
     end
-        
-  end
-G1L0C0 = [G1L0C0; aux1];
+end
+
+for i=1:50385
+    if Ma1(i,3)>150
+        FL0C2M0 = [FL0C2M0; L0C2M0(i,:)];
+    end
+end
+
+for i=1:50385
+    if Ma1(i,4)>150
+        FL0C3M0 = [FL0C3M0; L0C3M0(i,:)];
+    end
+end
+
 
 tempo = toc/60
+
+stop = 1;
+
+%% Normalizando os dados
+
+NFL0C0M0 = FL0C0M0(:,:);
+for i=1:23344
+    div = norm(NFL0C0M0(i,:));
+for j=1:7
+    NFL0C0M0(i,j)=NFL0C0M0(i,j)/div;
+end
+end
+
+NFL0C1M0 = FL0C1M0(:,:);
+for i=1:23634
+    div = norm(NFL0C1M0(i,:));
+for j=1:7
+    NFL0C1M0(i,j)=NFL0C1M0(i,j)/div;
+end
+end
+
+NFL0C2M0 = FL0C2M0(:,:);
+for i=1:42738
+    div = norm(NFL0C2M0(i,:));
+for j=1:7
+    NFL0C2M0(i,j)=NFL0C2M0(i,j)/div;
+end
+end
+
+NFL0C3M0 = FL0C3M0(:,:);
+for i=1:43371
+    div = norm(NFL0C3M0(i,:));
+for j=1:7
+    NFL0C3M0(i,j)=NFL0C3M0(i,j)/div;
+end
+end
+
+tempo = toc/60
+
+stop = 1;
+
+
