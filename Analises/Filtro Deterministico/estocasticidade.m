@@ -31,10 +31,10 @@ grid on
 
 %% Calculando e plotando autovalores e autovetores
 
-[COEFF0, SCORE0, LATENT0] = pca(NFL0C0M0);
-[COEFF1, SCORE1, LATENT1] = pca(NFL0C1M0);
-[COEFF2, SCORE2, LATENT2] = pca(NFL0C2M0);
-[COEFF3, SCORE3, LATENT3] = pca(NFL0C3M0);
+[COEFF0, SCORE0, LATENT0] = pca(FL0C0M0);
+[COEFF1, SCORE1, LATENT1] = pca(FL0C1M0);
+[COEFF2, SCORE2, LATENT2] = pca(FL0C2M0);
+[COEFF3, SCORE3, LATENT3] = pca(FL0C3M0);
 
 figure
 subplot(2,2,1);
