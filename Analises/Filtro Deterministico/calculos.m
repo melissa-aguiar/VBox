@@ -26,7 +26,6 @@ for i=m:64:3224640
 end
 
 %% Filtrando os dados pra um valor de corte em MeV
-load('workspace\energia_MeV')
 
 FL0C0M13 = [];
 FL0C1M13 = [];

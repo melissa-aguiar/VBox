@@ -36,7 +36,7 @@ end
 %% alguns parametros para o filtro estocastico
 variancia = var(ruidoDes(:,4)); %parametro usado no filtro estocastico
 sm = [0.0000 0.0172 0.4524 1.0000 0.5633 0.1493 0.0424]; %sinal medio pra calcular a parte deterministica
-mFC = sm*W'; % sinal medio para calcular Id
+mFC = sm*W'; % sinal medio normalizado para calcular Id
 
 %% aplicacao do filtro estocastico
 for pc=7:7 % 7 é randomico? é por causa do numero de amostras?
