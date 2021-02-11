@@ -1,6 +1,7 @@
 load('dados\Lado-Canal.mat');
 load('workspace\energia_MeV.mat');
 load('noise.txt');
+load('dados Lado-Canal-Modulo\L0C0M0.mat');
 
 %% pedestal
 pedL0C0M0 =  0;
@@ -22,7 +23,7 @@ end
 FL0C0M0 = [];
 
 for i=1:50385
-    if Ma1(i,1)>150
+    if Ma1(i,1)>500
         FL0C0M0 = [FL0C0M0; L0C0M0(i,:)];
     end
 end
@@ -30,18 +31,58 @@ end
 %% Normalizando os dados
 
 NFL0C0M0 = FL0C0M0(:,:);
-for i=1:23344
+for i=1:8806%23344
     div = max(FL0C0M0(i,:));
 for j=1:7
     NFL0C0M0(i,j)=FL0C0M0(i,j)/div;
 end
 end
 
-%% teste plot
+%% Pulso medio
+a1 = 0;
+a2 = 0;
+a3 = 0;
+a4 = 0;
+a5 = 0;
+a6 = 0;
+a7 = 0;
+
+for i=1:8806%23344 %muda o denominador tbm
+    a1 = a1 + NFL0C0M0(i,1);
+    a2 = a2 + NFL0C0M0(i,2);
+    a3 = a3 + NFL0C0M0(i,3);
+    a4 = a4 + NFL0C0M0(i,4);
+    a5 = a5 + NFL0C0M0(i,5);
+    a6 = a6 + NFL0C0M0(i,6);
+    a7 = a7 + NFL0C0M0(i,7);
+end
+
+a1 = a1/8806;
+a2 = a2/8806;
+a3 = a3/8806;
+a4 = a4/8806;
+a5 = a5/8806;
+a6 = a6/8806;
+a7 = a7/8806;
+
+medio = [a1, a2, a3, a4, a5, a6, a7];
+
+%% Plot
 figure
 plot(1:7,NFL0C0M0(:,:))
 title('Lado 0 Canal 0 Modulo 0')
+%axis([1 7 -5 5])
 grid on
+
+figure
+plot(medio)
+title('Pulso medio')
+%axis([1 7 -5 5])
+grid on
+
+%% PCA
+
+[COEFF0, SCORE0, LATENT0] = pca(FL0C0M0);
 
 figure
 hist(COEFF0)
@@ -53,34 +94,10 @@ plot(LATENT0,'-x')
 title('LATENT Lado 0 Canal 0 Modulo 0')
 grid
 
-%% teste pulso medio
-a1 = 0;
-a2 = 0;
-a3 = 0;
-a4 = 0;
-a5 = 0;
-a6 = 0;
-a7 = 0;
-
-for i=1:23344
-    a1 = a1 + NFL0C0M0(i,1);
-    a2 = a2 + NFL0C0M0(i,2);
-    a3 = a3 + NFL0C0M0(i,3);
-    a4 = a4 + NFL0C0M0(i,4);
-    a5 = a5 + NFL0C0M0(i,5);
-    a6 = a6 + NFL0C0M0(i,6);
-    a7 = a7 + NFL0C0M0(i,7);
-end
-
-a1 = a1/23344;
-a2 = a2/23344;
-a3 = a3/23344;
-a4 = a4/23344;
-a5 = a5/23344;
-a6 = a6/23344;
-a7 = a7/23344;
-
-medio = [a1, a2, a3, a4, a5, a6, a7];
+figure
+plot(medio*COEFF0)
+title('mEstimacao = pulsoMedio*COEFF')
+grid
 
 stop=1;
 

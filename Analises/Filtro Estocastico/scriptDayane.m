@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-SmpMuon = load('Sample_Muons.txt'); % | LADO | MODULO | CANAL | AMOSTRAS | ... CANAL 0, 1 é uma CELULA; 2 e 3 é outra
+%SmpMuon = load('Sample_Muons.txt'); % | LADO | MODULO | CANAL | AMOSTRAS | ... CANAL 0, 1 é uma CELULA; 2 e 3 é outra
 
 ped = 0;
 
