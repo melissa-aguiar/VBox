@@ -67,6 +67,7 @@ a7 = a7/8806;
 
 medio = [a1, a2, a3, a4, a5, a6, a7];
 
+
 %% Plot
 figure
 plot(1:7,NFL0C0M0(:,:))
@@ -82,7 +83,9 @@ grid on
 
 %% PCA
 
-[COEFF0, SCORE0, LATENT0] = pca(FL0C0M0);
+[COEFF0, SCORE0, LATENT0] = pca(NFL0C0M0);
+
+mEstimacao = medio*COEFF0;
 
 figure
 hist(COEFF0)
@@ -95,11 +98,49 @@ title('LATENT Lado 0 Canal 0 Modulo 0')
 grid
 
 figure
-plot(medio*COEFF0)
+plot(mEstimacao)
 title('mEstimacao = pulsoMedio*COEFF')
 grid
 
-stop=1;
+%% Parametros
+
+rRuido = noise*COEFF0;
+rSinal = FL0C0M0*COEFF0; %retirei o pedestal e filtrei pra >500MeV
+%rSinalNorm = NFL0C0M0 *COEFF0;
+
+variancia = var(noise(:,4));
+
+No = variancia*2;
+
+lambda = LATENT0;
+
+h1 = zeros(7,7); % vai ser a parte constante na formula de IR
+h2 = zeros(7,7); % vai ser a parte constante na formula de ID
+
+    for i=1:7 % de 1 ate o numero de pca
+        h1 = h1 + ((lambda(i))./((lambda(i))+variancia))*(COEFF0(:,i)*COEFF0(:,i)');
+        h2 = h2 + ((1./((lambda(i))+variancia)))*(COEFF0(:,i)*COEFF0(:,i)');
+    end
+
+figure
+plot(rRuido')
+title('rRuido')
+grid
+
+figure
+plot(rSinal')
+title('rSinal')
+grid
+
+figure
+plot(h1)
+title('h1')
+grid
+
+figure
+plot(h2)
+title('h2')
+grid
 
 %% Criando matrizes separando por lado, canal e modulo
 L0C0M13 = [];

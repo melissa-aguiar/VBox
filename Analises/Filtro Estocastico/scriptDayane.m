@@ -56,6 +56,7 @@ for pc=7:7 % 7 é randomico? é por causa do numero de amostras?
         h2 = h2 + ((1./((lambda(i))+variancia)))*(COEFF(:,i)*COEFF(:,i)');
     end
     
+    
     %------------------ acha a parte estocastica --------------------------
     IrRuido = zeros(size(ruidoTes,1),1); 
     IrSinal = zeros(size(sinalTes,1),1);
