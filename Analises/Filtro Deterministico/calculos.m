@@ -1,7 +1,15 @@
+clear all; close all; clc;
+
 load('dados\Lado-Canal.mat');
 load('workspace\energia_MeV.mat');
 load('noise.txt');
 load('dados Lado-Canal-Modulo\L0C0M0.mat');
+
+ruidoDes = noise(1:40308,:);
+ruidoTes = noise(40309:end,:);
+
+sinalDes = L0C0M0(1:40308,:);
+sinalTes = L0C0M0(40309:end,:);
 
 %% pedestal
 pedL0C0M0 =  0;
@@ -12,9 +20,9 @@ end
 pedL0C0M0 = pedL0C0M0/50385
 
 %% retirando o pedestal
-for i=1:50385
+for i=1:size(sinalDes)
     for j=1:7
-        L0C0M0(i,j) = L0C0M0(i,j) - pedL0C0M0;
+        sinalDes(i,j) = sinalDes(i,j) - pedL0C0M0;
     end
 end
 
@@ -22,23 +30,23 @@ end
 
 FL0C0M0 = [];
 
-for i=1:50385
+for i=1:size(sinalDes)
     if Ma1(i,1)>500
-        FL0C0M0 = [FL0C0M0; L0C0M0(i,:)];
+        FL0C0M0 = [FL0C0M0; sinalDes(i,:)];
     end
 end
 
 %% Normalizando os dados
 
 NFL0C0M0 = FL0C0M0(:,:);
-for i=1:8806%23344
+for i=1:size(FL0C0M0,1)
     div = max(FL0C0M0(i,:));
 for j=1:7
     NFL0C0M0(i,j)=FL0C0M0(i,j)/div;
 end
 end
 
-%% Pulso medio
+%% Pulso medio normalizado
 a1 = 0;
 a2 = 0;
 a3 = 0;
@@ -47,7 +55,7 @@ a5 = 0;
 a6 = 0;
 a7 = 0;
 
-for i=1:8806%23344 %muda o denominador tbm
+for i=1:size(FL0C0M0,1)
     a1 = a1 + NFL0C0M0(i,1);
     a2 = a2 + NFL0C0M0(i,2);
     a3 = a3 + NFL0C0M0(i,3);
@@ -57,15 +65,44 @@ for i=1:8806%23344 %muda o denominador tbm
     a7 = a7 + NFL0C0M0(i,7);
 end
 
-a1 = a1/8806;
-a2 = a2/8806;
-a3 = a3/8806;
-a4 = a4/8806;
-a5 = a5/8806;
-a6 = a6/8806;
-a7 = a7/8806;
+a1 = a1/size(FL0C0M0,1);
+a2 = a2/size(FL0C0M0,1);
+a3 = a3/size(FL0C0M0,1);
+a4 = a4/size(FL0C0M0,1);
+a5 = a5/size(FL0C0M0,1);
+a6 = a6/size(FL0C0M0,1);
+a7 = a7/size(FL0C0M0,1);
 
 medio = [a1, a2, a3, a4, a5, a6, a7];
+
+%% Pulso medio
+% a1 = 0;
+% a2 = 0;
+% a3 = 0;
+% a4 = 0;
+% a5 = 0;
+% a6 = 0;
+% a7 = 0;
+% 
+% for i=1:size(FL0C0M0,1)
+%     a1 = a1 + FL0C0M0(i,1);
+%     a2 = a2 + FL0C0M0(i,2);
+%     a3 = a3 + FL0C0M0(i,3);
+%     a4 = a4 + FL0C0M0(i,4);
+%     a5 = a5 + FL0C0M0(i,5);
+%     a6 = a6 + FL0C0M0(i,6);
+%     a7 = a7 + FL0C0M0(i,7);
+% end
+% 
+% a1 = a1/size(L0C0M0,1);
+% a2 = a2/size(L0C0M0,1);
+% a3 = a3/size(L0C0M0,1);
+% a4 = a4/size(L0C0M0,1);
+% a5 = a5/size(L0C0M0,1);
+% a6 = a6/size(L0C0M0,1);
+% a7 = a7/size(L0C0M0,1);
+% 
+% medio = [a1, a2, a3, a4, a5, a6, a7];
 
 
 %% Plot
@@ -104,11 +141,11 @@ grid
 
 %% Parametros
 
-rRuido = noise*COEFF0;
-rSinal = FL0C0M0*COEFF0; %retirei o pedestal e filtrei pra >500MeV
+rRuido = ruidoTes*COEFF0;
+rSinal = sinalTes*COEFF0; %retirei o pedestal e filtrei pra >500MeV, nao normalizei
 %rSinalNorm = NFL0C0M0 *COEFF0;
 
-variancia = var(noise(:,4));
+variancia = var(ruidoDes(:,4));
 
 No = variancia*2;
 
@@ -142,6 +179,61 @@ plot(h2)
 title('h2')
 grid
 
+%% acha a parte deterministica -----------------------
+N=7;
+    IdSinal = zeros(size(sinalTes,1),1);
+    IdRuido = zeros(size(ruidoTes,1),1);
+    for ev=1:size(ruidoTes,1)
+        IdRuido(ev) = ((mEstimacao*COEFF0(:,1:N)')*h2*(rRuido(ev,:)*COEFF0(:,1:N)')');
+    end
+
+    for ev=1:size(sinalTes,1)
+        IdSinal(ev) = ((mEstimacao*COEFF0(:,1:N)')*h2*(rSinal(ev,:)*COEFF0(:,1:N)')');
+    end
+
+    %%
+figure
+plot(IdRuido)
+title('IdRuido')
+grid
+
+figure
+plot(IdSinal)
+title('IdSinal')
+grid
+
+%% ROC
+patamar = 0;
+PD = [];
+FA = [];
+pd = 0;
+fa = 0;
+for i=1:2000
+    for j=1:size(IdRuido,1)
+        if IdSinal(j,1) > patamar
+            pd = pd + 1;
+        end
+        if IdRuido(j,1) > patamar
+            fa = fa + 1;
+        end
+    end
+    pd = pd*100/size(IdRuido,1);
+    fa = fa*100/size(IdRuido,1);
+    PD = [PD; pd];
+    FA = [FA; fa];
+    pd = 0;
+    fa = 0;
+    patamar = patamar + 0.01;
+end
+
+figure
+plot(FA, PD, '-x')
+grid
+title('ROC')
+xlabel('% FA')
+ylabel('% PD')
+
+stop = 1
 %% Criando matrizes separando por lado, canal e modulo
 L0C0M13 = [];
 L0C1M13 = [];
