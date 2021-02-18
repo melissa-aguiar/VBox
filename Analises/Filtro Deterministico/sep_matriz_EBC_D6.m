@@ -1,5 +1,6 @@
 %load('EBCD6.txt');
-load('EBCD6.mat');
+load('noiseEBCD6.mat');
+EBCD6 = noiseEBCD6;
 
 d1=zeros(50385,7);
 d2=zeros(50385,7);

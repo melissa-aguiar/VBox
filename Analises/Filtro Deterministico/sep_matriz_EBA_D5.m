@@ -1,5 +1,6 @@
 %load('EBAD5.txt');
-load('EBAD5.mat');
+load('noiseEBAD5.mat');
+EBAD5 = noiseEBAD5;
 
 a1=zeros(50385,7);
 a2=zeros(50385,7);
