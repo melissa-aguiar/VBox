@@ -6,16 +6,16 @@ load('noiseMa1.mat');
 IdSinal = muonMa1(:,1) + muonMa1(:,2) + muonMa1(:,3) + muonMa1(:,4);
 IdRuido = noiseMa1(:,1) + noiseMa1(:,2) + noiseMa1(:,3) + noiseMa1(:,4);
 
-%% ROC
+%% ROC Filtro Casado
 
 pmin = -1020;
 pmax = 3020;
 pontos = 2000;
 
-psoma = (pmax+pmin)/pontos;
+psoma = (pmax+abs(pmin))/pontos;
 patamar = pmin;
-PD = [pontos];
-FA = [pontos];
+PD = zeros(pontos);
+FA = zeros(pontos);
 pd = 0;
 fa = 0;
 

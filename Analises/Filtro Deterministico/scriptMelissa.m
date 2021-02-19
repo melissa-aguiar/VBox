@@ -14,6 +14,9 @@ load('dados Lado-Canal-Modulo\L0C1M0.mat');
 load('dados Lado-Canal-Modulo\L0C2M0.mat');
 load('dados Lado-Canal-Modulo\L0C3M0.mat');
 
+load('muonMa1.mat');
+load('noiseMa1.mat');
+
 %% Calculando o pedestal
 ped0 =  0;
 for i=1:size(noiseL0C0M0,1)
@@ -44,7 +47,7 @@ ped3 = ped3/size(noiseL0C3M0,1);
 
 %% Separando o conjunto de treino (80%) e teste (20%)
 
-ruido0 = noiseL0C0M0;  % é o SmpNoise[0][0][0] ------------ no scriptDayane é um pedestal mais uma distribuição gaussiana -----
+ruido0 = noiseL0C0M0;  % no scriptDayane é um pedestal mais uma distribuição gaussiana -------------
 ruido1 = noiseL0C1M0;
 ruido2 = noiseL0C2M0;
 ruido3 = noiseL0C3M0;
@@ -53,7 +56,7 @@ ruido3 = noiseL0C3M0;
 ruidoDes0 = ruido0(1:40308,:);
 ruidoTes0 = ruido0(40309:end,:);
 sinalDes0 = L0C0M0(1:40308,:);
-sinalTes0 = L0C0M0(40309:end,:);  % no scriptDayane é %ruido + distribuiçao uniforme + jitter ---------------------------
+sinalTes0 = L0C0M0(40309:end,:);  % no scriptDayane é %ruido + distribuiçao uniforme + jitter ------
 
 
 ruidoDes1 = ruido1(1:40308,:);
@@ -73,11 +76,23 @@ ruidoTes3 = ruido3(40309:end,:);
 sinalDes3 = L0C3M0(1:40308,:);
 sinalTes3 = L0C3M0(40309:end,:);
 
-% %% scriptDayane - branqueamento -- descorrelacionando o ruido --------------------------------------------------------
-% c = cov(ruidoDes); %ruidoDes é descorrelacionado
-% [V,D] = eig(c); % autovalores e autovetores
-% W = D^(-.5)*V'; % branqueamento
-% %ruido branqueado
+% %% scriptDayane - branqueamento -- descorrelacionando o ruido ------------------------------------
+c = cov(ruidoDes0);
+[V,D] = eig(c); 
+W0 = D^(-.5)*V';
+
+c = cov(ruidoDes0);
+[V,D] = eig(c); 
+W1 = D^(-.5)*V';
+
+c = cov(ruidoDes0);
+[V,D] = eig(c); 
+W2 = D^(-.5)*V';
+
+c = cov(ruidoDes0);
+[V,D] = eig(c); 
+W3 = D^(-.5)*V';
+
 
 %% Cálculo do pulso médio normalizado
 
@@ -110,6 +125,89 @@ for i=1:size(sinalDes3)
     end
 end
 
+
+for i=1:size(ruidoDes0)
+    for j=1:7
+        ruidoDes0(i,j) = ruidoDes0(i,j) - ped0;
+    end
+end
+
+
+for i=1:size(ruidoDes1)
+    for j=1:7
+        ruidoDes1(i,j) = ruidoDes1(i,j) - ped1;
+    end
+end
+
+
+for i=1:size(ruidoDes2)
+    for j=1:7
+        ruidoDes2(i,j) = ruidoDes2(i,j) - ped2;
+    end
+end
+
+
+for i=1:size(ruidoDes3)
+    for j=1:7
+        ruidoDes3(i,j) = ruidoDes3(i,j) - ped3;
+    end
+end
+
+% % Retirando o pedestal do conjunto de sinal de teste:
+
+for i=1:size(sinalTes0)
+    for j=1:7
+        sinalTes0(i,j) = sinalTes0(i,j) - ped0;
+    end
+end
+
+
+for i=1:size(sinalTes1)
+    for j=1:7
+        sinalTes1(i,j) = sinalTes1(i,j) - ped1;
+    end
+end
+
+
+for i=1:size(sinalTes2)
+    for j=1:7
+        sinalTes2(i,j) = sinalTes2(i,j) - ped2;
+    end
+end
+
+
+for i=1:size(sinalTes3)
+    for j=1:7
+        sinalTes3(i,j) = sinalTes3(i,j) - ped3;
+    end
+end
+
+for i=1:size(ruidoTes0)
+    for j=1:7
+        ruidoTes0(i,j) = ruidoTes0(i,j) - ped0;
+    end
+end
+
+
+for i=1:size(ruidoTes1)
+    for j=1:7
+        ruidoTes1(i,j) = ruidoTes1(i,j) - ped1;
+    end
+end
+
+
+for i=1:size(ruidoTes2)
+    for j=1:7
+        ruidoTes2(i,j) = ruidoTes2(i,j) - ped2;
+    end
+end
+
+
+for i=1:size(ruidoTes3)
+    for j=1:7
+        ruidoTes3(i,j) = ruidoTes3(i,j) - ped3;
+    end
+end
 
 % Filtrando os dados pra um valor de corte em MeV:
 
@@ -186,6 +284,7 @@ end
 end
 
 % Pulso medio normalizado
+
 a1 = 0;
 a2 = 0;
 a3 = 0;
@@ -342,17 +441,23 @@ sm3 = [a1, a2, a3, a4, a5, a6, a7];
 
 %% PCA
 
-[COEFF0, SCORE0, LATENT0] = pca(NFL0C0M0);  % scriptDayane usou o pegaPulseJitter()*W'----------------------------------
-[COEFF1, SCORE1, LATENT1] = pca(NFL0C1M0);
-[COEFF2, SCORE2, LATENT2] = pca(NFL0C2M0);
-[COEFF3, SCORE3, LATENT3] = pca(NFL0C3M0);
+[COEFF0, SCORE0, LATENT0] = pca(NFL0C0M0*W0');  % scriptDayane usou o pegaPulseJitter()*W'--------------
+[COEFF1, SCORE1, LATENT1] = pca(NFL0C1M0*W1');
+[COEFF2, SCORE2, LATENT2] = pca(NFL0C2M0*W2');
+[COEFF3, SCORE3, LATENT3] = pca(NFL0C3M0*W3');
 
 
 N=7;
-mEstimacao0 = sm0*COEFF0(:,1:N); % scriptDayane usou sm*W' branqueado ----------------------------------------------------
-mEstimacao1 = sm1*COEFF1(:,1:N);
-mEstimacao2 = sm2*COEFF2(:,1:N);
-mEstimacao3 = sm3*COEFF3(:,1:N);
+
+mFC0 = sm0*W0';
+mFC1 = sm1*W1';
+mFC2 = sm2*W2';
+mFC3 = sm3*W3';
+
+mEstimacao0 = mFC0*COEFF0(:,1:N); % scriptDayane usou sm*W' branqueado ------------------------------
+mEstimacao1 = mFC1*COEFF1(:,1:N);
+mEstimacao2 = mFC2*COEFF2(:,1:N);
+mEstimacao3 = mFC3*COEFF3(:,1:N);
 
 %% Plot
 % figure
@@ -382,19 +487,19 @@ mEstimacao3 = sm3*COEFF3(:,1:N);
 
 %% Parametros
 
-rRuido0 = (ruidoTes0)*COEFF0(:,1:N);
-rSinal0 = (sinalTes0)*COEFF0(:,1:N); % SmpMuon puro.. no scriptDayane o pedestal é retirado do sinal ---------------------
+rRuido0 = (ruidoTes0*W0')*COEFF0(:,1:N);
+rSinal0 = (sinalTes0*W0')*COEFF0(:,1:N); % SmpMuon puro. no scriptDayane subtrai o pedestal ------------ 
 
-rRuido1 = (ruidoTes1)*COEFF1(:,1:N);
-rSinal1 = (sinalTes1)*COEFF1(:,1:N);
+rRuido1 = (ruidoTes1*W1')*COEFF1(:,1:N);
+rSinal1 = (sinalTes1*W1')*COEFF1(:,1:N);
 
-rRuido2 = (ruidoTes2)*COEFF2(:,1:N);
-rSinal2 = (sinalTes2)*COEFF2(:,1:N);
+rRuido2 = (ruidoTes2*W2')*COEFF2(:,1:N);
+rSinal2 = (sinalTes2*W2')*COEFF2(:,1:N);
 
-rRuido3 = (ruidoTes3)*COEFF3(:,1:N);
-rSinal3 = (sinalTes3)*COEFF3(:,1:N);
+rRuido3 = (ruidoTes3*W3')*COEFF3(:,1:N);
+rSinal3 = (sinalTes3*W3')*COEFF3(:,1:N);
 
-variancia0 = var(ruidoDes0(:,4)); % usei o mesmo parametro do scriptDayane -----------------------------------------------
+variancia0 = var(ruidoDes0(:,4)); % usei o mesmo parametro do scriptDayane -------------------------
 
 variancia1 = var(ruidoDes1(:,4));
 
@@ -414,8 +519,8 @@ lambda2 = LATENT2;
 No3 = variancia3*2;
 lambda3 = LATENT3;
 
-h10 = zeros(7,7); % vai ser a parte constante na formula de IR
-h20 = zeros(7,7); % vai ser a parte constante na formula de ID
+h10 = zeros(7,7);
+h20 = zeros(7,7);
 
 h11 = zeros(7,7);
 h21 = zeros(7,7);
@@ -583,18 +688,18 @@ FCestSinal = IdSinal + IrSinal; % saida do filtro pra deteccao para o sinal
 
 %% ROC1
 
-pmin = 0;
-pmax = 450;
-pontos = 2000;
+pmin = -2;
+pmax = 2;
+pontos = 1000;
 
-psoma = (pmax+pmin)/pontos;
+psoma = (pmax+abs(pmin))/pontos;
 patamar = pmin;
-PD = [pontos];
-FA = [pontos];
+PD1 = zeros(pontos,1);
+FA1 = zeros(pontos,1);
 pd = 0;
 fa = 0;
 
-for i=1:pontos  % patamar variando em 2000 pontos
+for i=1:pontos  % patamar variando em x pontos
     for j=1:size(FCestRuido,1)
         if FCestSinal(j) > patamar
             pd = pd + 1;
@@ -605,30 +710,23 @@ for i=1:pontos  % patamar variando em 2000 pontos
     end
     pd = pd*100/size(FCestSinal,1);
     fa = fa*100/size(FCestRuido,1);
-    PD(i) = pd; % preenchendo o vetor
-    FA(i) = fa;
+    PD1(i) = pd; % preenchendo o vetor
+    FA1(i) = fa;
     pd = 0;
     fa = 0;
     patamar = patamar + psoma;
 end
 
-figure
-plot(FA, PD, '-x')
-grid
-title('ROC')
-xlabel('% FA')
-ylabel('% PD')
-
 %% ROC2
 
-pmin = 0;
-pmax = 300;
+pmin = -2;
+pmax = 20;
 pontos = 2000;
 
-psoma = (pmax+pmin)/pontos;
+psoma = (pmax+abs(pmin))/pontos;
 patamar = pmin;
-PD = [pontos];
-FA = [pontos];
+PD2 = zeros(pontos,1);
+FA2 = zeros(pontos,1);
 pd = 0;
 fa = 0;
 
@@ -643,16 +741,68 @@ for i=1:pontos  % patamar variando em 2000 pontos
     end
     pd = pd*100/size(IdSinal,1);
     fa = fa*100/size(IdRuido,1);
-    PD(i) = pd; % preenchendo o vetor
-    FA(i) = fa;
+    PD2(i) = pd; % preenchendo o vetor
+    FA2(i) = fa;
     pd = 0;
     fa = 0;
     patamar = patamar + psoma;
 end
 
+%% ROC Filtro Casado
+
+
+IdSinal = [];
+IdRuido = [];
+
+IdSinal = muonMa1(:,1) + muonMa1(:,2) + muonMa1(:,3) + muonMa1(:,4);
+IdRuido = noiseMa1(:,1) + noiseMa1(:,2) + noiseMa1(:,3) + noiseMa1(:,4);
+
+pmin = -1020;
+pmax = 3020;
+pontos = 1000;
+
+psoma = (pmax+abs(pmin))/pontos;
+patamar = pmin;
+PD3 = zeros(pontos,1);
+FA3 = zeros(pontos,1);
+pd = 0;
+fa = 0;
+
+for i=1:pontos  % patamar variando em 2000 pontos
+    for j=1:size(IdRuido,1)
+        if IdSinal(j) > patamar
+            pd = pd + 1;
+        end 
+        if IdRuido(j) > patamar
+            fa = fa + 1;
+        end
+    end
+    pd = pd*100/size(IdSinal,1);
+    fa = fa*100/size(IdRuido,1);
+    PD3(i) = pd; % preenchendo o vetor
+    FA3(i) = fa;
+    pd = 0;
+    fa = 0;
+    patamar = patamar + psoma;
+end
+
+
+figure
+
+plot(FA1, PD1, '-b*');
+
 hold on
-plot(FA, PD, '-xg')
+plot(FA2, PD2, '-rs');
+
+hold on
+plot(FA3, PD3, '-.g', 'LineWidth', 2);
+
+
 grid
-title('ROC')
+title('Análise de Eficiência - ROC')
+legend('Filtro Estocástico (completo)', 'Filtro Estocástico (simplificado)', 'Filtro Casado');
 xlabel('% FA')
 ylabel('% PD')
+
+
+
