@@ -20,28 +20,28 @@ load('noiseMa1.mat');
 %% Calculando o pedestal
 ped0 =  0;
 for i=1:size(noiseL0C0M0,1)
-    ped0 = ped0 + noiseL0C0M0(i,1);
+    ped0 = ped0 + noiseL0C0M0(i,4);
 end
 ped0 = ped0/size(noiseL0C0M0,1);
 
 
 ped1 =  0;
 for i=1:size(noiseL0C1M0,1)
-    ped1 = ped1 + noiseL0C1M0(i,1);
+    ped1 = ped1 + noiseL0C1M0(i,4);
 end
 ped1 = ped1/size(noiseL0C1M0,1);
 
 
 ped2 =  0;
 for i=1:size(noiseL0C2M0,1)
-    ped2 = ped2 + noiseL0C2M0(i,1);
+    ped2 = ped2 + noiseL0C2M0(i,4);
 end
 ped2 = ped2/size(noiseL0C2M0,1);
 
 
 ped3 =  0;
 for i=1:size(noiseL0C3M0,1)
-    ped3 = ped3 + noiseL0C3M0(i,1);
+    ped3 = ped3 + noiseL0C3M0(i,4);
 end
 ped3 = ped3/size(noiseL0C3M0,1);
 
@@ -77,21 +77,21 @@ sinalDes3 = L0C3M0(1:40308,:);
 sinalTes3 = L0C3M0(40309:end,:);
 
 % %% scriptDayane - branqueamento -- descorrelacionando o ruido ------------------------------------
-c = cov(ruidoDes0);
-[V,D] = eig(c); 
-W0 = D^(-.5)*V';
+c0 = cov(ruidoDes0);
+[V0,D0] = eig(c0); 
+W0 = D0^(-.5)*V0';
 
-c = cov(ruidoDes0);
-[V,D] = eig(c); 
-W1 = D^(-.5)*V';
+c1 = cov(ruidoDes1);
+[V1,D1] = eig(c1); 
+W1 = D1^(-.5)*V1';
 
-c = cov(ruidoDes0);
-[V,D] = eig(c); 
-W2 = D^(-.5)*V';
+c2 = cov(ruidoDes2);
+[V2,D2] = eig(c2); 
+W2 = D2^(-.5)*V2';
 
-c = cov(ruidoDes0);
-[V,D] = eig(c); 
-W3 = D^(-.5)*V';
+c3 = cov(ruidoDes3);
+[V3,D3] = eig(c3); 
+W3 = D3^(-.5)*V3';
 
 
 %% Cálculo do pulso médio normalizado
@@ -441,10 +441,10 @@ sm3 = [a1, a2, a3, a4, a5, a6, a7];
 
 %% PCA
 
-[COEFF0, SCORE0, LATENT0] = pca(NFL0C0M0*W0');  % scriptDayane usou o pegaPulseJitter()*W'--------------
-[COEFF1, SCORE1, LATENT1] = pca(NFL0C1M0*W1');
-[COEFF2, SCORE2, LATENT2] = pca(NFL0C2M0*W2');
-[COEFF3, SCORE3, LATENT3] = pca(NFL0C3M0*W3');
+[COEFF0, SCORE0, LATENT0] = pca(sinalDes0*W0');  % scriptDayane usou o pegaPulseJitter()*W'--------------
+[COEFF1, SCORE1, LATENT1] = pca(sinalDes1*W1');  % antes tava NFL0CXM0
+[COEFF2, SCORE2, LATENT2] = pca(sinalDes2*W2');
+[COEFF3, SCORE3, LATENT3] = pca(sinalDes3*W3');
 
 
 N=7;
@@ -454,7 +454,7 @@ mFC1 = sm1*W1';
 mFC2 = sm2*W2';
 mFC3 = sm3*W3';
 
-mEstimacao0 = mFC0*COEFF0(:,1:N); % scriptDayane usou sm*W' branqueado ------------------------------
+mEstimacao0 = mFC0*COEFF0(:,1:N); 
 mEstimacao1 = mFC1*COEFF1(:,1:N);
 mEstimacao2 = mFC2*COEFF2(:,1:N);
 mEstimacao3 = mFC3*COEFF3(:,1:N);
@@ -488,7 +488,7 @@ mEstimacao3 = mFC3*COEFF3(:,1:N);
 %% Parametros
 
 rRuido0 = (ruidoTes0*W0')*COEFF0(:,1:N);
-rSinal0 = (sinalTes0*W0')*COEFF0(:,1:N); % SmpMuon puro. no scriptDayane subtrai o pedestal ------------ 
+rSinal0 = (sinalTes0*W0')*COEFF0(:,1:N);
 
 rRuido1 = (ruidoTes1*W1')*COEFF1(:,1:N);
 rSinal1 = (sinalTes1*W1')*COEFF1(:,1:N);
@@ -544,28 +544,6 @@ h23 = zeros(7,7);
         h13 = h13 + ((lambda3(i))./((lambda3(i))+variancia3))*(COEFF3(:,i)*COEFF3(:,i)');
         h23 = h23 + ((1./((lambda3(i))+variancia3)))*(COEFF3(:,i)*COEFF3(:,i)');
     end
-
-% %% Plot
-% figure
-% plot(rRuido')
-% title('rRuido')
-% grid
-% 
-% figure
-% plot(rSinal')
-% title('rSinal')
-% grid
-% 
-% figure
-% plot(h1)
-% title('h1')
-% grid
-% 
-% figure
-% plot(h2)
-% title('h2')
-% grid
-
     
 %% Acha a parte deterministica do sinal e do ruido
 
@@ -688,9 +666,9 @@ FCestSinal = IdSinal + IrSinal; % saida do filtro pra deteccao para o sinal
 
 %% ROC1
 
-pmin = -2;
-pmax = 2;
-pontos = 1000;
+pmin = 0;
+pmax = 360;
+pontos = 4000;
 
 psoma = (pmax+abs(pmin))/pontos;
 patamar = pmin;
@@ -720,7 +698,7 @@ end
 %% ROC2
 
 pmin = -2;
-pmax = 20;
+pmax = 10;
 pontos = 2000;
 
 psoma = (pmax+abs(pmin))/pontos;
@@ -751,11 +729,8 @@ end
 %% ROC Filtro Casado
 
 
-IdSinal = [];
-IdRuido = [];
-
-IdSinal = muonMa1(:,1) + muonMa1(:,2) + muonMa1(:,3) + muonMa1(:,4);
-IdRuido = noiseMa1(:,1) + noiseMa1(:,2) + noiseMa1(:,3) + noiseMa1(:,4);
+FcSinal = muonMa1(:,1) + muonMa1(:,2) + muonMa1(:,3) + muonMa1(:,4);
+FcRuido = noiseMa1(:,1) + noiseMa1(:,2) + noiseMa1(:,3) + noiseMa1(:,4);
 
 pmin = -1020;
 pmax = 3020;
@@ -769,16 +744,16 @@ pd = 0;
 fa = 0;
 
 for i=1:pontos  % patamar variando em 2000 pontos
-    for j=1:size(IdRuido,1)
-        if IdSinal(j) > patamar
+    for j=1:size(FcRuido,1)
+        if FcSinal(j) > patamar
             pd = pd + 1;
         end 
-        if IdRuido(j) > patamar
+        if FcRuido(j) > patamar
             fa = fa + 1;
         end
     end
-    pd = pd*100/size(IdSinal,1);
-    fa = fa*100/size(IdRuido,1);
+    pd = pd*100/size(FcSinal,1);
+    fa = fa*100/size(FcRuido,1);
     PD3(i) = pd; % preenchendo o vetor
     FA3(i) = fa;
     pd = 0;
