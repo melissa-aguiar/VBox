@@ -190,22 +190,20 @@ for i=1:size(ruidoTes3)
     end
 end
 
+%% Separando o conjunto de treino (80%) e teste (20%)
+
+
+ruidoDes = ruidoDes0 + ruidoDes1 + ruidoDes2 + ruidoDes3;
+ruidoTes = ruidoTes0 + ruidoTes1 + ruidoTes2 + ruidoTes3;
+sinalDes = sinalDes0 + sinalDes1 + sinalDes2 + sinalDes3;
+sinalTes = sinalTes0 + sinalTes1 + sinalTes2 + sinalTes3;
+
+
+
 %% scriptDayane - branqueamento -- descorrelacionando o ruido ------------------------------------
-c0 = cov(ruidoDes0);
-[V0,D0] = eig(c0); 
-W0 = D0^(-.5)*V0';
-
-c1 = cov(ruidoDes1);
-[V1,D1] = eig(c1); 
-W1 = D1^(-.5)*V1';
-
-c2 = cov(ruidoDes2);
-[V2,D2] = eig(c2); 
-W2 = D2^(-.5)*V2';
-
-c3 = cov(ruidoDes3);
-[V3,D3] = eig(c3); 
-W3 = D3^(-.5)*V3';
+c = cov(ruidoDes);
+[V,D] = eig(c); 
+W = D^(-.5)*V';
 
 %% Cálculo do pulso médio normalizado
 
@@ -390,231 +388,71 @@ sm3 = [a1, a2, a3, a4, a5, a6, a7];
 
 %% Normalizando os sinais medios
 
-div = max(sm0(:));
-for j=1:7
-    sm0(j)=sm0(j)/div;
-end
+sm = sm0 + sm1 + sm2 + sm3;
 
-div = max(sm1(:));
+div = max(sm(:));
 for j=1:7
-    sm1(j)=sm1(j)/div;
-end
-
-div = max(sm2(:));
-for j=1:7
-    sm2(j)=sm2(j)/div;
-end
-
-div = max(sm3(:));
-for j=1:7
-    sm3(j)=sm3(j)/div;
+    sm(j)=sm(j)/div;
 end
 
 %% PCA
 
-[COEFF0, SCORE0, LATENT0] = pca(NFL0C0M0*W0');  % scriptDayane usou o pegaPulseJitter()*W'--------------
-[COEFF1, SCORE1, LATENT1] = pca(NFL0C1M0*W1');  % antes tava NFL0CXM0
-[COEFF2, SCORE2, LATENT2] = pca(NFL0C2M0*W2');
-[COEFF3, SCORE3, LATENT3] = pca(NFL0C3M0*W3');
+NFL0M0 = [NFL0C0M0 ; NFL0C1M0 ; NFL0C2M0 ; NFL0C3M0];
+
+[COEFF, SCORE, LATENT] = pca(NFL0M0*W');
 
 N=7;
 
-mFC0 = sm0*W0';
-mFC1 = sm1*W1';
-mFC2 = sm2*W2';
-mFC3 = sm3*W3';
+mFC = sm*W';
 
-mEstimacao0 = mFC0*COEFF0(:,1:N); 
-mEstimacao1 = mFC1*COEFF1(:,1:N);
-mEstimacao2 = mFC2*COEFF2(:,1:N);
-mEstimacao3 = mFC3*COEFF3(:,1:N);
+mEstimacao = mFC*COEFF(:,1:N); 
 
 %% Parametros
 
-rRuido0 = (ruidoTes0*W0')*COEFF0(:,1:N);
-rSinal0 = (sinalTes0*W0')*COEFF0(:,1:N);
+rRuido = (ruidoTes*W')*COEFF(:,1:N);
+rSinal = (sinalTes*W')*COEFF(:,1:N);
 
-rRuido1 = (ruidoTes1*W1')*COEFF1(:,1:N);
-rSinal1 = (sinalTes1*W1')*COEFF1(:,1:N);
+variancia = var(ruidoDes(:,4)); 
 
-rRuido2 = (ruidoTes2*W2')*COEFF2(:,1:N);
-rSinal2 = (sinalTes2*W2')*COEFF2(:,1:N);
+No = variancia*2;
+lambda = LATENT;
 
-rRuido3 = (ruidoTes3*W3')*COEFF3(:,1:N);
-rSinal3 = (sinalTes3*W3')*COEFF3(:,1:N);
+h1 = zeros(7,7);
+h2 = zeros(7,7);
 
-variancia0 = var(ruidoDes0(:,4)); % usei o mesmo parametro do scriptDayane -------------------------
+for i=1:N % de 1 ate o numero de pca
+        h1 = h1 + ((lambda(i))./((lambda(i))+variancia))*(COEFF(:,i)*COEFF(:,i)');
+        h2 = h2 + ((1./((lambda(i))+variancia)))*(COEFF(:,i)*COEFF(:,i)');
+end
 
-variancia1 = var(ruidoDes1(:,4));
-
-variancia2 = var(ruidoDes2(:,4));
-
-variancia3 = var(ruidoDes3(:,4));
-
-No0 = variancia0*2;
-lambda0 = LATENT0;
-
-No1 = variancia1*2;
-lambda1 = LATENT1;
-
-No2 = variancia2*2;
-lambda2 = LATENT2;
-
-No3 = variancia3*2;
-lambda3 = LATENT3;
-
-h10 = zeros(7,7);
-h20 = zeros(7,7);
-
-h11 = zeros(7,7);
-h21 = zeros(7,7);
-
-h12 = zeros(7,7);
-h22 = zeros(7,7);
-
-h13 = zeros(7,7);
-h23 = zeros(7,7);
-
-    for i=1:N % de 1 ate o numero de pca
-        h10 = h10 + ((lambda0(i))./((lambda0(i))+variancia0))*(COEFF0(:,i)*COEFF0(:,i)');
-        h20 = h20 + ((1./((lambda0(i))+variancia0)))*(COEFF0(:,i)*COEFF0(:,i)');
-        
-        h11 = h11 + ((lambda1(i))./((lambda1(i))+variancia1))*(COEFF1(:,i)*COEFF1(:,i)');
-        h21 = h21 + ((1./((lambda1(i))+variancia1)))*(COEFF1(:,i)*COEFF1(:,i)');
-        
-        h12 = h12 + ((lambda2(i))./((lambda2(i))+variancia2))*(COEFF2(:,i)*COEFF2(:,i)');
-        h22 = h22 + ((1./((lambda2(i))+variancia2)))*(COEFF2(:,i)*COEFF2(:,i)');
-        
-        h13 = h13 + ((lambda3(i))./((lambda3(i))+variancia3))*(COEFF3(:,i)*COEFF3(:,i)');
-        h23 = h23 + ((1./((lambda3(i))+variancia3)))*(COEFF3(:,i)*COEFF3(:,i)');
-    end
-    
 %% Acha a parte estocastica do sinal e do ruido
 
-    IrRuido0 = zeros(size(ruidoTes0,1),1); 
-    IrSinal0 = zeros(size(sinalTes0,1),1);
-    
-    IrRuido1 = zeros(size(ruidoTes1,1),1); 
-    IrSinal1 = zeros(size(sinalTes1,1),1);
-    
-    IrRuido2 = zeros(size(ruidoTes2,1),1); 
-    IrSinal2 = zeros(size(sinalTes2,1),1);
-    
-    IrRuido3 = zeros(size(ruidoTes3,1),1); 
-    IrSinal3 = zeros(size(sinalTes3,1),1);
-    
-    
-    for ev=1:size(ruidoTes0,1)
-        IrRuido0(ev) = (1/No0)*((rRuido0(ev,:)*COEFF0(:,1:N)')*h10*(rRuido0(ev,:)*COEFF0(:,1:N)')');
-    end
-    for ev=1:size(sinalTes0,1)
-        IrSinal0(ev) = (1/No0)*((rSinal0(ev,:)*COEFF0(:,1:N)')*h10*(rSinal0(ev,:)*COEFF0(:,1:N)')');
-    end
-    
-    
-    for ev=1:size(ruidoTes1,1)
-        IrRuido1(ev) = (1/No1)*((rRuido1(ev,:)*COEFF1(:,1:N)')*h11*(rRuido1(ev,:)*COEFF1(:,1:N)')');
-    end
-    for ev=1:size(sinalTes1,1)
-        IrSinal1(ev) = (1/No1)*((rSinal1(ev,:)*COEFF1(:,1:N)')*h11*(rSinal1(ev,:)*COEFF1(:,1:N)')');
-    end
-    
-    
-    for ev=1:size(ruidoTes2,1)
-        IrRuido2(ev) = (1/No2)*((rRuido2(ev,:)*COEFF2(:,1:N)')*h12*(rRuido2(ev,:)*COEFF2(:,1:N)')');
-    end
-    for ev=1:size(sinalTes2,1)
-        IrSinal2(ev) = (1/No2)*((rSinal2(ev,:)*COEFF2(:,1:N)')*h12*(rSinal2(ev,:)*COEFF2(:,1:N)')');
-    end
-    
-    
-    for ev=1:size(ruidoTes3,1)
-        IrRuido3(ev) = (1/No3)*((rRuido3(ev,:)*COEFF3(:,1:N)')*h13*(rRuido3(ev,:)*COEFF3(:,1:N)')');
-    end
-    for ev=1:size(sinalTes3,1)
-        IrSinal3(ev) = (1/No3)*((rSinal3(ev,:)*COEFF3(:,1:N)')*h13*(rSinal3(ev,:)*COEFF3(:,1:N)')');
+    IrRuido = zeros(size(ruidoTes,1),1); 
+    IrSinal = zeros(size(sinalTes,1),1);
+    for ev=1:size(ruidoTes,1) % testa qual o valor do evento usando a formula inteira do artigo
+        IrRuido(ev) = (1/No)*((rRuido(ev,:)*COEFF(:,1:N)')*h1*(rRuido(ev,:)*COEFF(:,1:N)')');
     end
 
-%% Compondo os sinais
-
-IrRuido = IrRuido0 + IrRuido1 + IrRuido2 + IrRuido3;
-IrSinal = IrSinal0 + IrSinal1 + IrSinal2 + IrSinal3;
+    for ev=1:size(sinalTes,1)
+        IrSinal(ev) = (1/No)*((rSinal(ev,:)*COEFF(:,1:N)')*h1*(rSinal(ev,:)*COEFF(:,1:N)')');
+    end
 
 %% Acha a parte deterministica do sinal e do ruido
 
-N=7;
+    IdSinal = zeros(size(sinalTes,1),1);
+    IdRuido = zeros(size(ruidoTes,1),1);
+    for ev=1:size(ruidoTes,1)
+        IdRuido(ev) = ((mEstimacao*COEFF(:,1:N)')*h2*(rRuido(ev,:)*COEFF(:,1:N)')');
+    end
 
-IdSinal0 = zeros(size(sinalTes0,1),1);
-IdRuido0 = zeros(size(ruidoTes0,1),1);
-
-IdSinal1 = zeros(size(sinalTes1,1),1);
-IdRuido1 = zeros(size(ruidoTes1,1),1);
-
-IdSinal2 = zeros(size(sinalTes2,1),1);
-IdRuido2 = zeros(size(ruidoTes2,1),1);
-
-IdSinal3 = zeros(size(sinalTes3,1),1);
-IdRuido3 = zeros(size(ruidoTes3,1),1);
-
-
-for ev=1:size(ruidoTes0,1)
-    IdRuido0(ev) = ((mEstimacao0*COEFF0(:,1:N)')*h20*(rRuido0(ev,:)*COEFF0(:,1:N)')');
-end
-
-for ev=1:size(sinalTes0,1)
-    IdSinal0(ev) = ((mEstimacao0*COEFF0(:,1:N)')*h20*(rSinal0(ev,:)*COEFF0(:,1:N)')');
-end
-
-
-
-for ev=1:size(ruidoTes1,1)
-    IdRuido1(ev) = ((mEstimacao1*COEFF1(:,1:N)')*h21*(rRuido1(ev,:)*COEFF1(:,1:N)')');
-end
-
-for ev=1:size(sinalTes1,1)
-    IdSinal1(ev) = ((mEstimacao1*COEFF1(:,1:N)')*h21*(rSinal1(ev,:)*COEFF1(:,1:N)')');
-end
-
-
-
-for ev=1:size(ruidoTes2,1)
-    IdRuido2(ev) = ((mEstimacao2*COEFF2(:,1:N)')*h22*(rRuido2(ev,:)*COEFF2(:,1:N)')');
-end
-
-for ev=1:size(sinalTes2,1)
-    IdSinal2(ev) = ((mEstimacao2*COEFF2(:,1:N)')*h22*(rSinal2(ev,:)*COEFF2(:,1:N)')');
-end
-
-
-
-for ev=1:size(ruidoTes3,1)
-    IdRuido3(ev) = ((mEstimacao3*COEFF3(:,1:N)')*h23*(rRuido3(ev,:)*COEFF3(:,1:N)')');
-end
-
-for ev=1:size(sinalTes3,1)
-    IdSinal3(ev) = ((mEstimacao3*COEFF3(:,1:N)')*h23*(rSinal3(ev,:)*COEFF3(:,1:N)')');
-end
-
-%% Compondo os sinais
-
-IdRuido = IdRuido0 + IdRuido1 + IdRuido2 + IdRuido3;
-IdSinal = IdSinal0 + IdSinal1 + IdSinal2 + IdSinal3;
+    for ev=1:size(sinalTes,1)
+        IdSinal(ev) = ((mEstimacao*COEFF(:,1:N)')*h2*(rSinal(ev,:)*COEFF(:,1:N)')');
+    end
 
 %% Saída do filtro
 
 FCestRuido = IdRuido + IrRuido; % saida do filtro pra deteccao para o ruido
 FCestSinal = IdSinal + IrSinal; % saida do filtro pra deteccao para o sinal
-
-%% Plot
-% figure
-% plot(FCestRuido)
-% title('FCestRuido')
-% grid
-% 
-% figure
-% plot(FCestSinal)
-% title('FCestSinal')
-% grid
 
 %% ROC1
 
