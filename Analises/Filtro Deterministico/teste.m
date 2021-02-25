@@ -212,7 +212,7 @@ W = D^(-.5)*V';
 FL0C0M0 = [];
 
 for i=1:size(sinalDes0)
-    if Ma1(i,1)>500
+    if Ma1(i,1)>1000
         FL0C0M0 = [FL0C0M0; sinalDes0(i,:)];
     end
 end
@@ -221,7 +221,7 @@ end
 FL0C1M0 = [];
 
 for i=1:size(sinalDes1)
-    if Ma1(i,2)>500
+    if Ma1(i,2)>1000
         FL0C1M0 = [FL0C1M0; sinalDes1(i,:)];
     end
 end
@@ -230,7 +230,7 @@ end
 FL0C2M0 = [];
 
 for i=1:size(sinalDes2)
-    if Ma1(i,3)>500
+    if Ma1(i,3)>1000
         FL0C2M0 = [FL0C2M0; sinalDes2(i,:)];
     end
 end
@@ -239,7 +239,7 @@ end
 FL0C3M0 = [];
 
 for i=1:size(sinalDes3)
-    if Ma1(i,4)>500
+    if Ma1(i,4)>1000
         FL0C3M0 = [FL0C3M0; sinalDes3(i,:)];
     end
 end
@@ -399,7 +399,7 @@ end
 
 NFL0M0 = [NFL0C0M0 ; NFL0C1M0 ; NFL0C2M0 ; NFL0C3M0];
 
-[COEFF, SCORE, LATENT] = pca(NFL0M0*W');
+[COEFF, SCORE, LATENT] = pca(sinalDes*W');
 
 N=7;
 
@@ -597,7 +597,7 @@ plot(FA, PD, '-mx');
 
 
 grid
-title('Análise de Eficiência - ROC')
+title('Análise de Eficiência - pca(sinalDes) MODULO')
 legend('Filtro Estocástico (completo)', 'Componente Determinística', 'Filtro Casado', 'Componente Estocástica');
 xlabel('% FA')
 ylabel('% PD')
