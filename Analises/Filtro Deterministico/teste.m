@@ -1,5 +1,5 @@
 clear all;
-close all;
+% close all;
 clc;
 
 %% Carregando arquivos
@@ -397,9 +397,9 @@ end
 
 %% PCA
 
-NFL0M0 = [NFL0C0M0 ; NFL0C1M0 ; NFL0C2M0 ; NFL0C3M0];
+NFL0M0 = NFL0C0M0(1:1564,:) + NFL0C1M0(1:1564,:) + NFL0C2M0(1:1564,:) + NFL0C3M0(1:1564,:);
 
-[COEFF, SCORE, LATENT] = pca(sinalDes*W');
+[COEFF, SCORE, LATENT] = pca(NFL0M0*W');
 
 N=7;
 
@@ -582,6 +582,17 @@ for i=1:pontos  % patamar variando em 2000 pontos
     patamar = patamar + psoma;
 end
 
+hold on
+plot(FA1, PD1, '-mx');
+
+legend('Filtro Casado', 'Filtro Estocástico (Célula)','Filtro Estocástico (Canal)','Filtro Estocástico (Módulo)')
+title('Análise de Eficiência - pca(sinalDes)')
+xlabel('% FA')
+ylabel('% PD')
+grid
+stop = 1
+
+%%
 figure
 
 plot(FA1, PD1, '-b*');
