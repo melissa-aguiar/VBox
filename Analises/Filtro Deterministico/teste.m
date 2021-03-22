@@ -1,5 +1,5 @@
 clear all;
-% close all;
+close all;
 clc;
 
 %% Carregando arquivos
@@ -77,7 +77,7 @@ sinalDes3 = L0C3M0(1:40308,:);
 sinalTes3 = L0C3M0(40309:end,:);
 
 
-% Retirando o pedestal do conjunto de sinal de treino:
+%% Retirando o pedestal do conjunto de sinal de treino:
 
 for i=1:size(sinalDes0)
     for j=1:7
@@ -134,7 +134,7 @@ for i=1:size(ruidoDes3)
     end
 end
 
-% % Retirando o pedestal do conjunto de sinal de teste:
+%% Retirando o pedestal do conjunto de sinal de teste:
 
 for i=1:size(sinalTes0)
     for j=1:7
@@ -190,7 +190,7 @@ for i=1:size(ruidoTes3)
     end
 end
 
-%% Separando o conjunto de treino (80%) e teste (20%)
+%% Separando o conjunto de treino (80%) e teste (20%) por módulo
 
 
 ruidoDes = ruidoDes0 + ruidoDes1 + ruidoDes2 + ruidoDes3;
@@ -200,10 +200,10 @@ sinalTes = sinalTes0 + sinalTes1 + sinalTes2 + sinalTes3;
 
 
 
-%% scriptDayane - branqueamento -- descorrelacionando o ruido ------------------------------------
+%% scriptDayane - branqueamento -- descorrelacionando o ruido ---------------------------
 c = cov(ruidoDes);
 [V,D] = eig(c); 
-W = D^(-.5)*V';
+W = D^(-0.5)*V';
 
 %% Cálculo do pulso médio normalizado
 
@@ -244,40 +244,15 @@ for i=1:size(sinalDes3)
     end
 end
 
+F = FL0C0M0(1:1564,:) + FL0C1M0(1:1564,:) + FL0C2M0(1:1564,:) + FL0C3M0(1:1564,:);
+
 % Normalizando os dados:
 
-NFL0C0M0 = FL0C0M0(:,:);
-for i=1:size(FL0C0M0,1)
-    div = max(FL0C0M0(i,:));
+NF = F(:,:);
+for i=1:size(F,1)
+    div = max(F(i,:));
 for j=1:7
-    NFL0C0M0(i,j)=FL0C0M0(i,j)/div;
-end
-end
-
-
-NFL0C1M0 = FL0C1M0(:,:);
-for i=1:size(FL0C1M0,1)
-    div = max(FL0C1M0(i,:));
-for j=1:7
-    NFL0C1M0(i,j)=FL0C1M0(i,j)/div;
-end
-end
-
-
-NFL0C2M0 = FL0C2M0(:,:);
-for i=1:size(FL0C2M0,1)
-    div = max(FL0C2M0(i,:));
-for j=1:7
-    NFL0C2M0(i,j)=FL0C2M0(i,j)/div;
-end
-end
-
-
-NFL0C3M0 = FL0C3M0(:,:);
-for i=1:size(FL0C3M0,1)
-    div = max(FL0C3M0(i,:));
-for j=1:7
-    NFL0C3M0(i,j)=FL0C3M0(i,j)/div;
+    NF(i,j)=F(i,j)/div;
 end
 end
 
@@ -290,105 +265,25 @@ a4 = 0;
 a5 = 0;
 a6 = 0;
 a7 = 0;
-for i=1:size(FL0C0M0,1)
-    a1 = a1 + NFL0C0M0(i,1);
-    a2 = a2 + NFL0C0M0(i,2);
-    a3 = a3 + NFL0C0M0(i,3);
-    a4 = a4 + NFL0C0M0(i,4);
-    a5 = a5 + NFL0C0M0(i,5);
-    a6 = a6 + NFL0C0M0(i,6);
-    a7 = a7 + NFL0C0M0(i,7);
+for i=1:size(F,1)
+    a1 = a1 + NF(i,1);
+    a2 = a2 + NF(i,2);
+    a3 = a3 + NF(i,3);
+    a4 = a4 + NF(i,4);
+    a5 = a5 + NF(i,5);
+    a6 = a6 + NF(i,6);
+    a7 = a7 + NF(i,7);
 end
-a1 = a1/size(FL0C0M0,1);
-a2 = a2/size(FL0C0M0,1);
-a3 = a3/size(FL0C0M0,1);
-a4 = a4/size(FL0C0M0,1);
-a5 = a5/size(FL0C0M0,1);
-a6 = a6/size(FL0C0M0,1);
-a7 = a7/size(FL0C0M0,1);
-sm0 = [a1, a2, a3, a4, a5, a6, a7];
-
-
-a1 = 0;
-a2 = 0;
-a3 = 0;
-a4 = 0;
-a5 = 0;
-a6 = 0;
-a7 = 0;
-for i=1:size(FL0C1M0,1)
-    a1 = a1 + NFL0C1M0(i,1);
-    a2 = a2 + NFL0C1M0(i,2);
-    a3 = a3 + NFL0C1M0(i,3);
-    a4 = a4 + NFL0C1M0(i,4);
-    a5 = a5 + NFL0C1M0(i,5);
-    a6 = a6 + NFL0C1M0(i,6);
-    a7 = a7 + NFL0C1M0(i,7);
-end
-a1 = a1/size(FL0C1M0,1);
-a2 = a2/size(FL0C1M0,1);
-a3 = a3/size(FL0C1M0,1);
-a4 = a4/size(FL0C1M0,1);
-a5 = a5/size(FL0C1M0,1);
-a6 = a6/size(FL0C1M0,1);
-a7 = a7/size(FL0C1M0,1);
-sm1 = [a1, a2, a3, a4, a5, a6, a7];
-
-
-a1 = 0;
-a2 = 0;
-a3 = 0;
-a4 = 0;
-a5 = 0;
-a6 = 0;
-a7 = 0;
-for i=1:size(FL0C2M0,1)
-    a1 = a1 + NFL0C2M0(i,1);
-    a2 = a2 + NFL0C2M0(i,2);
-    a3 = a3 + NFL0C2M0(i,3);
-    a4 = a4 + NFL0C2M0(i,4);
-    a5 = a5 + NFL0C2M0(i,5);
-    a6 = a6 + NFL0C2M0(i,6);
-    a7 = a7 + NFL0C2M0(i,7);
-end
-a1 = a1/size(FL0C2M0,1);
-a2 = a2/size(FL0C2M0,1);
-a3 = a3/size(FL0C2M0,1);
-a4 = a4/size(FL0C2M0,1);
-a5 = a5/size(FL0C2M0,1);
-a6 = a6/size(FL0C2M0,1);
-a7 = a7/size(FL0C2M0,1);
-sm2 = [a1, a2, a3, a4, a5, a6, a7];
-
-
-a1 = 0;
-a2 = 0;
-a3 = 0;
-a4 = 0;
-a5 = 0;
-a6 = 0;
-a7 = 0;
-for i=1:size(FL0C3M0,1)
-    a1 = a1 + NFL0C3M0(i,1);
-    a2 = a2 + NFL0C3M0(i,2);
-    a3 = a3 + NFL0C3M0(i,3);
-    a4 = a4 + NFL0C3M0(i,4);
-    a5 = a5 + NFL0C3M0(i,5);
-    a6 = a6 + NFL0C3M0(i,6);
-    a7 = a7 + NFL0C3M0(i,7);
-end
-a1 = a1/size(FL0C3M0,1);
-a2 = a2/size(FL0C3M0,1);
-a3 = a3/size(FL0C3M0,1);
-a4 = a4/size(FL0C3M0,1);
-a5 = a5/size(FL0C3M0,1);
-a6 = a6/size(FL0C3M0,1);
-a7 = a7/size(FL0C3M0,1);
-sm3 = [a1, a2, a3, a4, a5, a6, a7];
+a1 = a1/size(F,1);
+a2 = a2/size(F,1);
+a3 = a3/size(F,1);
+a4 = a4/size(F,1);
+a5 = a5/size(F,1);
+a6 = a6/size(F,1);
+a7 = a7/size(F,1);
+sm = [a1, a2, a3, a4, a5, a6, a7];
 
 %% Normalizando os sinais medios
-
-sm = sm0 + sm1 + sm2 + sm3;
 
 div = max(sm(:));
 for j=1:7
@@ -397,9 +292,7 @@ end
 
 %% PCA
 
-NFL0M0 = NFL0C0M0(1:1564,:) + NFL0C1M0(1:1564,:) + NFL0C2M0(1:1564,:) + NFL0C3M0(1:1564,:);
-
-[COEFF, SCORE, LATENT] = pca(NFL0M0*W');
+[COEFF, SCORE, LATENT] = pca(NF*W');
 
 N=7;
 
@@ -582,15 +475,16 @@ for i=1:pontos  % patamar variando em 2000 pontos
     patamar = patamar + psoma;
 end
 
-hold on
-plot(FA1, PD1, '-mx');
-
-legend('Filtro Casado', 'Filtro Estocástico (Célula)','Filtro Estocástico (Canal)','Filtro Estocástico (Módulo)')
-title('Análise de Eficiência - pca(sinalDes)')
-xlabel('% FA')
-ylabel('% PD')
-grid
-stop = 1
+% hold on
+% plot(FA1, PD1, '-mx');
+% 
+% % legend('Filtro Casado', 'Filtro Estocástico (Célula)','Filtro Estocástico (Canal)','Filtro Estocástico (Módulo)')
+% title('ROC - Results')
+% legend('Matched Filter', 'Stochastic Filter (Cell)', 'Stochastic Filter (Channel)', 'Stochastic Filter (Module)');
+% xlabel('% FA')
+% ylabel('% PD')
+% grid
+% stop = 1
 
 %%
 figure
@@ -608,10 +502,15 @@ plot(FA, PD, '-mx');
 
 
 grid
-title('Análise de Eficiência - pca(sinalDes) MODULO')
-legend('Filtro Estocástico (completo)', 'Componente Determinística', 'Filtro Casado', 'Componente Estocástica');
+title('ROC - Module')
+legend('Stochastic Filter', 'Deterministic Component', 'Matched Filter', 'Stochastic Component');
 xlabel('% FA')
 ylabel('% PD')
+
+% figure
+% plot(LATENT,'-x')
+% title('Filter Coefficients (Module 0)')
+% grid
 
 
 

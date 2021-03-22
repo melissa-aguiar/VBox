@@ -111,3 +111,166 @@ for pc=7:7 % 7 é randomico? é por causa do numero de amostras?
     end
    
 end
+
+
+%% ROC1
+
+pmin = min(FCestSinal);
+pmax = max(FCestSinal);
+pontos = 4000;
+
+psoma = (pmax+abs(pmin))/pontos;
+patamar = pmin;
+PD1 = zeros(pontos,1);
+FA1 = zeros(pontos,1);
+pd = 0;
+fa = 0;
+
+for i=1:pontos  % patamar variando em x pontos
+    for j=1:size(FCestRuido,1)
+        if FCestSinal(j) > patamar
+            pd = pd + 1;
+        end 
+        if FCestRuido(j) > patamar
+            fa = fa + 1;
+        end
+    end
+    pd = pd*100/size(FCestSinal,1);
+    fa = fa*100/size(FCestRuido,1);
+    PD1(i) = pd; % preenchendo o vetor
+    FA1(i) = fa;
+    pd = 0;
+    fa = 0;
+    patamar = patamar + psoma;
+end
+
+%% ROC2
+
+pmin = min(IdSinal);
+pmax = max(IdSinal);
+pontos = 4000;
+
+psoma = (pmax+abs(pmin))/pontos;
+patamar = pmin;
+PD2 = zeros(pontos,1);
+FA2 = zeros(pontos,1);
+pd = 0;
+fa = 0;
+
+for i=1:pontos  % patamar variando em 2000 pontos
+    for j=1:size(IdRuido,1)
+        if IdSinal(j) > patamar
+            pd = pd + 1;
+        end 
+        if IdRuido(j) > patamar
+            fa = fa + 1;
+        end
+    end
+    pd = pd*100/size(IdSinal,1);
+    fa = fa*100/size(IdRuido,1);
+    PD2(i) = pd; % preenchendo o vetor
+    FA2(i) = fa;
+    pd = 0;
+    fa = 0;
+    patamar = patamar + psoma;
+end
+
+%% ROC Filtro Casado
+
+load('Filtro Deterministico\muonMa1.mat');
+load('Filtro Deterministico\noiseMa1.mat');
+
+FcSinal = muonMa1(:,1) + muonMa1(:,2) + muonMa1(:,3) + muonMa1(:,4);
+FcRuido = noiseMa1(:,1) + noiseMa1(:,2) + noiseMa1(:,3) + noiseMa1(:,4);
+
+pmin = min(FcSinal);
+pmax = max(FcSinal);
+pontos = 1000;
+
+psoma = (pmax+abs(pmin))/pontos;
+patamar = pmin;
+PD3 = zeros(pontos,1);
+FA3 = zeros(pontos,1);
+pd = 0;
+fa = 0;
+
+for i=1:pontos  % patamar variando em 2000 pontos
+    for j=1:size(FcRuido,1)
+        if FcSinal(j) > patamar
+            pd = pd + 1;
+        end 
+        if FcRuido(j) > patamar
+            fa = fa + 1;
+        end
+    end
+    pd = pd*100/size(FcSinal,1);
+    fa = fa*100/size(FcRuido,1);
+    PD3(i) = pd; % preenchendo o vetor
+    FA3(i) = fa;
+    pd = 0;
+    fa = 0;
+    patamar = patamar + psoma;
+end
+
+%% ROC3
+
+pmin = min(IrSinal);
+pmax = max(IrSinal);
+pontos = 4000;
+
+psoma = (pmax+abs(pmin))/pontos;
+patamar = pmin;
+PD = zeros(pontos,1);
+FA = zeros(pontos,1);
+pd = 0;
+fa = 0;
+
+for i=1:pontos  % patamar variando em 2000 pontos
+    for j=1:size(IrRuido,1)
+        if IrSinal(j) > patamar
+            pd = pd + 1;
+        end 
+        if IrRuido(j) > patamar
+            fa = fa + 1;
+        end
+    end
+    pd = pd*100/size(IrSinal,1);
+    fa = fa*100/size(IrRuido,1);
+    PD(i) = pd; % preenchendo o vetor
+    FA(i) = fa;
+    pd = 0;
+    fa = 0;
+    patamar = patamar + psoma;
+end
+
+% hold on
+% plot(FA1, PD1, '-mx');
+% 
+% % legend('Filtro Casado', 'Filtro Estocástico (Célula)','Filtro Estocástico (Canal)','Filtro Estocástico (Módulo)')
+% title('ROC - Results')
+% legend('Matched Filter', 'Stochastic Filter (Cell)', 'Stochastic Filter (Channel)', 'Stochastic Filter (Module)');
+% xlabel('% FA')
+% ylabel('% PD')
+% grid
+% stop = 1
+
+%%
+figure
+
+plot(FA1, PD1, '-b*');
+
+hold on
+plot(FA2, PD2, '-rs');
+
+hold on
+plot(FA3, PD3, '-.g', 'LineWidth', 2);
+
+hold on
+plot(FA, PD, '-mx');
+
+
+grid
+title('ROC - Module')
+legend('Stochastic Filter', 'Deterministic Component', 'Matched Filter', 'Stochastic Component');
+xlabel('% FA')
+ylabel('% PD')

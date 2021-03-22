@@ -1,5 +1,5 @@
 clear all;
-%close all;
+close all;
 clc;
 
 %% Carregando arquivos
@@ -207,6 +207,7 @@ c3 = cov(ruidoDes3);
 [V3,D3] = eig(c3); 
 W3 = D3^(-.5)*V3';
 
+
 %% Cálculo do pulso médio normalizado
 
 % Filtrando os dados pra um valor de corte em MeV:
@@ -387,6 +388,8 @@ a5 = a5/size(FL0C3M0,1);
 a6 = a6/size(FL0C3M0,1);
 a7 = a7/size(FL0C3M0,1);
 sm3 = [a1, a2, a3, a4, a5, a6, a7];
+
+
 
 %% Normalizando os sinais medios
 
@@ -605,7 +608,7 @@ IdSinal = IdSinal0 + IdSinal1 + IdSinal2 + IdSinal3;
 FCestRuido = IdRuido + IrRuido; % saida do filtro pra deteccao para o ruido
 FCestSinal = IdSinal + IrSinal; % saida do filtro pra deteccao para o sinal
 
-%% Plot
+% %% Plot
 % figure
 % plot(FCestRuido)
 % title('FCestRuido')
@@ -744,10 +747,10 @@ for i=1:pontos  % patamar variando em 2000 pontos
     patamar = patamar + psoma;
 end
 
-hold on
-plot(FA1, PD1, '-rs');
-
-stop = 1
+% hold on
+% plot(FA1, PD1, '-rs');
+% 
+% stop = 1
 
 %%
 
@@ -766,8 +769,9 @@ plot(FA, PD, '-mx');
 
 
 grid
-title('Análise de Eficiência - pca(sinalDes normalizado e filtrado)')
-legend('Filtro Estocástico (completo)', 'Componente Determinística', 'Filtro Casado', 'Componente Estocástica');
+title('ROC - Channel')
+legend('Stochastic Filter', 'Deterministic Component', 'Matched Filter', 'Stochastic Component');
+% legend('Stochastic Filter', 'Matched Filter');
 xlabel('% FA')
 ylabel('% PD')
 
