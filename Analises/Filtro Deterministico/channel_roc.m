@@ -215,7 +215,7 @@ W3 = D3^(-.5)*V3';
 FL0C0M0 = [];
 
 for i=1:size(sinalDes0)
-    if Ma1(i,1)>1000
+    if Ma1(i,1)>150
         FL0C0M0 = [FL0C0M0; sinalDes0(i,:)];
     end
 end
@@ -224,7 +224,7 @@ end
 FL0C1M0 = [];
 
 for i=1:size(sinalDes1)
-    if Ma1(i,2)>1000
+    if Ma1(i,2)>150
         FL0C1M0 = [FL0C1M0; sinalDes1(i,:)];
     end
 end
@@ -233,7 +233,7 @@ end
 FL0C2M0 = [];
 
 for i=1:size(sinalDes2)
-    if Ma1(i,3)>1000
+    if Ma1(i,3)>150
         FL0C2M0 = [FL0C2M0; sinalDes2(i,:)];
     end
 end
@@ -242,7 +242,7 @@ end
 FL0C3M0 = [];
 
 for i=1:size(sinalDes3)
-    if Ma1(i,4)>1000
+    if Ma1(i,4)>150
         FL0C3M0 = [FL0C3M0; sinalDes3(i,:)];
     end
 end
@@ -600,13 +600,139 @@ end
 
 %% Compondo os sinais
 
-IdRuido = IdRuido0;% + IdRuido1 + IdRuido2 + IdRuido3;
-IdSinal = IdSinal0;% + IdSinal1 + IdSinal2 + IdSinal3;
+IdRuido = IdRuido0 + IdRuido1 + IdRuido2 + IdRuido3;
+IdSinal = IdSinal0 + IdSinal1 + IdSinal2 + IdSinal3;
 
 %% Saída do filtro
 
 FCestRuido = IdRuido + IrRuido; % saida do filtro pra deteccao para o ruido
 FCestSinal = IdSinal + IrSinal; % saida do filtro pra deteccao para o sinal
+
+FCestRuido0 = IdRuido0 + IrRuido0; 
+FCestSinal0 = IdSinal0 + IrSinal0;
+
+FCestRuido1 = IdRuido1 + IrRuido1; 
+FCestSinal1 = IdSinal1 + IrSinal1;
+
+FCestRuido2 = IdRuido2 + IrRuido2; 
+FCestSinal2 = IdSinal2 + IrSinal2;
+
+FCestRuido3 = IdRuido3 + IrRuido3; 
+FCestSinal3 = IdSinal3 + IrSinal3;
+
+ %% estimacao da amplitude 0
+    b10 = COEFF0(:,1:N)*COEFF0(:,1:N)';
+    b20 = (1/No0)*(COEFF0(:,1:N)*h10*COEFF0(:,1:N)');
+    b30 = (mEstimacao0*COEFF0(:,1:N)')*h20*COEFF0(:,1:N)';
+    
+    ampRuido0 = zeros(size(ruidoTes0,1),1);
+    ampSinal0 = zeros(size(sinalTes0,1),1);
+    a0 = (1/No0)*((mEstimacao0*COEFF0(:,1:N)')*h10*(mEstimacao0*COEFF0(:,1:N)')');
+    b0 = (mEstimacao0*COEFF0(:,1:N)')*h20*(mEstimacao0*COEFF0(:,1:N)')';
+    cs0=0;
+    cr0=0;
+    for i=1:size(sinalTes0,1)
+        ra0 = b0*b0+4*a0*FCestSinal0(i);
+        if ra0<0
+            ra0=0;
+            cs0=cs0+1;
+        end
+        ampSinal0(i) = (-b0+sqrt(ra0))/(2*a0); % amplitude do sinal usando a saida do filtro casado
+    end
+    for i=1:size(ruidoTes0,1)
+        ra0 = b0*b0+4*a0*FCestRuido0(i);
+        if ra0<0
+            ra0=0;
+            cr0=cr0+1;
+        end
+        ampRuido0(i) = (-b0+sqrt(ra0))/(2*a0); % amplitude do ruido usando a saida do filtro casado
+    end
+
+     %% estimacao da amplitude 
+    b11 = COEFF1(:,1:N)*COEFF1(:,1:N)';
+    b21 = (1/No1)*(COEFF1(:,1:N)*h11*COEFF1(:,1:N)');
+    b31 = (mEstimacao1*COEFF1(:,1:N)')*h21*COEFF1(:,1:N)';
+    
+    ampRuido1 = zeros(size(ruidoTes1,1),1);
+    ampSinal1 = zeros(size(sinalTes1,1),1);
+    a1 = (1/No1)*((mEstimacao1*COEFF1(:,1:N)')*h11*(mEstimacao1*COEFF1(:,1:N)')');
+    b1 = (mEstimacao1*COEFF1(:,1:N)')*h21*(mEstimacao1*COEFF1(:,1:N)')';
+    cs1=0;
+    cr1=0;
+    for i=1:size(sinalTes1,1)
+        ra1 = b1*b1+4*a1*FCestSinal1(i);
+        if ra1<0
+            ra1=0;
+            cs1=cs1+1;
+        end
+        ampSinal1(i) = (-b1+sqrt(ra1))/(2*a1); % amplitude do sinal usando a saida do filtro casado
+    end
+    for i=1:size(ruidoTes1,1)
+        ra1 = b1*b1+4*a1*FCestRuido1(i);
+        if ra1<0
+            ra1=0;
+            cr1=cr1+1;
+        end
+        ampRuido1(i) = (-b1+sqrt(ra1))/(2*a1); % amplitude do ruido usando a saida do filtro casado
+    end
+
+ %% estimacao da amplitude 
+    b12 = COEFF2(:,1:N)*COEFF2(:,1:N)';
+    b22 = (1/No2)*(COEFF2(:,1:N)*h12*COEFF2(:,1:N)');
+    b32 = (mEstimacao2*COEFF2(:,1:N)')*h22*COEFF2(:,1:N)';
+    
+    ampRuido2 = zeros(size(ruidoTes2,1),1);
+    ampSinal2 = zeros(size(sinalTes2,1),1);
+    a2 = (1/No2)*((mEstimacao2*COEFF2(:,1:N)')*h12*(mEstimacao2*COEFF2(:,1:N)')');
+    b2 = (mEstimacao2*COEFF2(:,1:N)')*h22*(mEstimacao2*COEFF2(:,1:N)')';
+    cs2=0;
+    cr2=0;
+    for i=1:size(sinalTes2,1)
+        ra2 = b2*b2+4*a2*FCestSinal2(i);
+        if ra2<0
+            ra2=0;
+            cs2=cs2+1;
+        end
+        ampSinal2(i) = (-b2+sqrt(ra2))/(2*a2); % amplitude do sinal usando a saida do filtro casado
+    end
+    for i=1:size(ruidoTes2,1)
+        ra2 = b2*b2+4*a2*FCestRuido2(i);
+        if ra2<0
+            ra2=0;
+            cr2=cr2+1;
+        end
+        ampRuido2(i) = (-b2+sqrt(ra2))/(2*a2); % amplitude do ruido usando a saida do filtro casado
+    end
+
+ %% estimacao da amplitude 
+    b13 = COEFF3(:,1:N)*COEFF3(:,1:N)';
+    b23 = (1/No3)*(COEFF3(:,1:N)*h13*COEFF3(:,1:N)');
+    b33 = (mEstimacao3*COEFF3(:,1:N)')*h23*COEFF3(:,1:N)';
+    
+    ampRuido3 = zeros(size(ruidoTes3,1),1);
+    ampSinal3 = zeros(size(sinalTes3,1),1);
+    a3 = (1/No3)*((mEstimacao3*COEFF3(:,1:N)')*h13*(mEstimacao3*COEFF3(:,1:N)')');
+    b3 = (mEstimacao3*COEFF3(:,1:N)')*h23*(mEstimacao3*COEFF3(:,1:N)')';
+    cs3=0;
+    cr3=0;
+    for i=1:size(sinalTes3,1)
+        ra3 = b3*b3+4*a3*FCestSinal3(i);
+        if ra3<0
+            ra3=0;
+            cs3=cs3+1;
+        end
+        ampSinal3(i) = (-b3+sqrt(ra3))/(2*a3); % amplitude do sinal usando a saida do filtro casado
+    end
+    for i=1:size(ruidoTes3,1)
+        ra3 = b3*b3+4*a3*FCestRuido3(i);
+        if ra3<0
+            ra3=0;
+            cr3=cr3+1;
+        end
+        ampRuido3(i) = (-b3+sqrt(ra3))/(2*a3); % amplitude do ruido usando a saida do filtro casado
+    end
+ampSinal = ampSinal0 + ampSinal1 + ampSinal2 + ampSinal3;
+ampRuido = ampRuido0 + ampRuido1 + ampRuido2 + ampRuido3;
 
 % %% Plot
 % figure
@@ -621,8 +747,8 @@ FCestSinal = IdSinal + IrSinal; % saida do filtro pra deteccao para o sinal
 
 %% ROC1
 
-pmin = min(FCestSinal);
-pmax = max(FCestSinal);
+pmin = min(ampSinal);
+pmax = max(ampRuido);
 pontos = 4000;
 
 psoma = (pmax+abs(pmin))/pontos;
@@ -633,16 +759,16 @@ pd = 0;
 fa = 0;
 
 for i=1:pontos  % patamar variando em x pontos
-    for j=1:size(FCestRuido,1)
-        if FCestSinal(j) > patamar
+    for j=1:size(ampRuido,1)
+        if ampSinal(j) > patamar
             pd = pd + 1;
         end 
-        if FCestRuido(j) > patamar
+        if ampRuido(j) > patamar
             fa = fa + 1;
         end
     end
-    pd = pd*100/size(FCestSinal,1);
-    fa = fa*100/size(FCestRuido,1);
+    pd = pd*100/size(ampSinal,1);
+    fa = fa*100/size(ampRuido,1);
     PD1(i) = pd; % preenchendo o vetor
     FA1(i) = fa;
     pd = 0;
@@ -650,42 +776,42 @@ for i=1:pontos  % patamar variando em x pontos
     patamar = patamar + psoma;
 end
 
-%% ROC2
-
-pmin = min(IdSinal);
-pmax = max(IdSinal);
-pontos = 4000;
-
-psoma = (pmax+abs(pmin))/pontos;
-patamar = pmin;
-PD2 = zeros(pontos,1);
-FA2 = zeros(pontos,1);
-pd = 0;
-fa = 0;
-
-for i=1:pontos  % patamar variando em 2000 pontos
-    for j=1:size(IdRuido,1)
-        if IdSinal(j) > patamar
-            pd = pd + 1;
-        end 
-        if IdRuido(j) > patamar
-            fa = fa + 1;
-        end
-    end
-    pd = pd*100/size(IdSinal,1);
-    fa = fa*100/size(IdRuido,1);
-    PD2(i) = pd; % preenchendo o vetor
-    FA2(i) = fa;
-    pd = 0;
-    fa = 0;
-    patamar = patamar + psoma;
-end
+% %% ROC2
+% 
+% pmin = min(IdSinal);
+% pmax = max(IdSinal);
+% pontos = 4000;
+% 
+% psoma = (pmax+abs(pmin))/pontos;
+% patamar = pmin;
+% PD2 = zeros(pontos,1);
+% FA2 = zeros(pontos,1);
+% pd = 0;
+% fa = 0;
+% 
+% for i=1:pontos  % patamar variando em 2000 pontos
+%     for j=1:size(IdRuido,1)
+%         if IdSinal(j) > patamar
+%             pd = pd + 1;
+%         end 
+%         if IdRuido(j) > patamar
+%             fa = fa + 1;
+%         end
+%     end
+%     pd = pd*100/size(IdSinal,1);
+%     fa = fa*100/size(IdRuido,1);
+%     PD2(i) = pd; % preenchendo o vetor
+%     FA2(i) = fa;
+%     pd = 0;
+%     fa = 0;
+%     patamar = patamar + psoma;
+% end
 
 %% ROC Filtro Casado
 
 
-FcSinal = muonMa1(:,1);% + muonMa1(:,2) + muonMa1(:,3) + muonMa1(:,4);
-FcRuido = noiseMa1(:,1);% + noiseMa1(:,2) + noiseMa1(:,3) + noiseMa1(:,4);
+FcSinal = muonMa1(:,1) + muonMa1(:,2) + muonMa1(:,3) + muonMa1(:,4);
+FcRuido = noiseMa1(:,1) + noiseMa1(:,2) + noiseMa1(:,3) + noiseMa1(:,4);
 
 pmin = min(FcSinal);
 pmax = max(FcSinal);
@@ -716,64 +842,388 @@ for i=1:pontos  % patamar variando em 2000 pontos
     patamar = patamar + psoma;
 end
 
-%% ROC3
-
-pmin = min(IrSinal);
-pmax = max(IrSinal);
-pontos = 4000;
-
-psoma = (pmax+abs(pmin))/pontos;
-patamar = pmin;
-PD = zeros(pontos,1);
-FA = zeros(pontos,1);
-pd = 0;
-fa = 0;
-
-for i=1:pontos  % patamar variando em 2000 pontos
-    for j=1:size(IrRuido,1)
-        if IrSinal(j) > patamar
-            pd = pd + 1;
-        end 
-        if IrRuido(j) > patamar
-            fa = fa + 1;
-        end
-    end
-    pd = pd*100/size(IrSinal,1);
-    fa = fa*100/size(IrRuido,1);
-    PD(i) = pd; % preenchendo o vetor
-    FA(i) = fa;
-    pd = 0;
-    fa = 0;
-    patamar = patamar + psoma;
-end
+% %% ROC3
+% 
+% pmin = min(IrSinal);
+% pmax = max(IrSinal);
+% pontos = 4000;
+% 
+% psoma = (pmax+abs(pmin))/pontos;
+% patamar = pmin;
+% PD = zeros(pontos,1);
+% FA = zeros(pontos,1);
+% pd = 0;
+% fa = 0;
+% 
+% for i=1:pontos  % patamar variando em 2000 pontos
+%     for j=1:size(IrRuido,1)
+%         if IrSinal(j) > patamar
+%             pd = pd + 1;
+%         end 
+%         if IrRuido(j) > patamar
+%             fa = fa + 1;
+%         end
+%     end
+%     pd = pd*100/size(IrSinal,1);
+%     fa = fa*100/size(IrRuido,1);
+%     PD(i) = pd; % preenchendo o vetor
+%     FA(i) = fa;
+%     pd = 0;
+%     fa = 0;
+%     patamar = patamar + psoma;
+% end
 
 % hold on
 % plot(FA1, PD1, '-rs');
 % 
 % stop = 1
 
-%%
 
-figure
 
-plot(FA1, PD1, '-b*');
+% %% ROC CANAL
+% pmin = min(FCestSinal0);
+% pmax = max(FCestSinal0);
+% pontos = 1000;
+% 
+% psoma = (pmax+abs(pmin))/pontos;
+% patamar = pmin;
+% PD10 = zeros(pontos,1);
+% FA10 = zeros(pontos,1);
+% pd = 0;
+% fa = 0;
+% 
+% for i=1:pontos  % patamar variando em x pontos
+%     for j=1:size(FCestRuido0,1)
+%         if FCestSinal0(j) > patamar
+%             pd = pd + 1;
+%         end 
+%         if FCestRuido0(j) > patamar
+%             fa = fa + 1;
+%         end
+%     end
+%     pd = pd*100/size(FCestSinal0,1);
+%     fa = fa*100/size(FCestRuido0,1);
+%     PD10(i) = pd; % preenchendo o vetor
+%     FA10(i) = fa;
+%     pd = 0;
+%     fa = 0;
+%     patamar = patamar + psoma;
+% end
+% 
+% pmin = min(FCestSinal1);
+% pmax = max(FCestSinal1);
+% pontos = 1000;
+% 
+% psoma = (pmax+abs(pmin))/pontos;
+% patamar = pmin;
+% PD11 = zeros(pontos,1);
+% FA11 = zeros(pontos,1);
+% pd = 0;
+% fa = 0;
+% 
+% for i=1:pontos  % patamar variando em x pontos
+%     for j=1:size(FCestRuido1,1)
+%         if FCestSinal1(j) > patamar
+%             pd = pd + 1;
+%         end 
+%         if FCestRuido1(j) > patamar
+%             fa = fa + 1;
+%         end
+%     end
+%     pd = pd*100/size(FCestSinal1,1);
+%     fa = fa*100/size(FCestRuido1,1);
+%     PD11(i) = pd; % preenchendo o vetor
+%     FA11(i) = fa;
+%     pd = 0;
+%     fa = 0;
+%     patamar = patamar + psoma;
+% end
+% 
+% pmin = min(FCestSinal2);
+% pmax = max(FCestSinal2);
+% pontos = 1000;
+% 
+% psoma = (pmax+abs(pmin))/pontos;
+% patamar = pmin;
+% PD12 = zeros(pontos,1);
+% FA12 = zeros(pontos,1);
+% pd = 0;
+% fa = 0;
+% 
+% for i=1:pontos  % patamar variando em x pontos
+%     for j=1:size(FCestRuido2,1)
+%         if FCestSinal2(j) > patamar
+%             pd = pd + 1;
+%         end 
+%         if FCestRuido2(j) > patamar
+%             fa = fa + 1;
+%         end
+%     end
+%     pd = pd*100/size(FCestSinal2,1);
+%     fa = fa*100/size(FCestRuido2,1);
+%     PD12(i) = pd; % preenchendo o vetor
+%     FA12(i) = fa;
+%     pd = 0;
+%     fa = 0;
+%     patamar = patamar + psoma;
+% end
+% 
+% pmin = min(FCestSinal3);
+% pmax = max(FCestSinal3);
+% pontos = 1000;
+% 
+% psoma = (pmax+abs(pmin))/pontos;
+% patamar = pmin;
+% PD13 = zeros(pontos,1);
+% FA13 = zeros(pontos,1);
+% pd = 0;
+% fa = 0;
+% 
+% for i=1:pontos  % patamar variando em x pontos
+%     for j=1:size(FCestRuido3,1)
+%         if FCestSinal3(j) > patamar
+%             pd = pd + 1;
+%         end 
+%         if FCestRuido3(j) > patamar
+%             fa = fa + 1;
+%         end
+%     end
+%     pd = pd*100/size(FCestSinal3,1);
+%     fa = fa*100/size(FCestRuido3,1);
+%     PD13(i) = pd; % preenchendo o vetor
+%     FA13(i) = fa;
+%     pd = 0;
+%     fa = 0;
+%     patamar = patamar + psoma;
+% end
 
-hold on
-plot(FA2, PD2, '-rs');
 
+
+% %% ROC Filtro Casado 0
+% 
+% 
+% FcSinal = muonMa1(:,1);% + muonMa1(:,2) + muonMa1(:,3) + muonMa1(:,4);
+% FcRuido = noiseMa1(:,1);% + noiseMa1(:,2) + noiseMa1(:,3) + noiseMa1(:,4);
+% 
+% pmin = min(FcSinal);
+% pmax = max(FcSinal);
+% pontos = 1000;
+% 
+% psoma = (pmax+abs(pmin))/pontos;
+% patamar = pmin;
+% PD30 = zeros(pontos,1);
+% FA30 = zeros(pontos,1);
+% pd = 0;
+% fa = 0;
+% 
+% for i=1:pontos  % patamar variando em 2000 pontos
+%     for j=1:size(FcRuido,1)
+%         if FcSinal(j) > patamar
+%             pd = pd + 1;
+%         end 
+%         if FcRuido(j) > patamar
+%             fa = fa + 1;
+%         end
+%     end
+%     pd = pd*100/size(FcSinal,1);
+%     fa = fa*100/size(FcRuido,1);
+%     PD30(i) = pd; % preenchendo o vetor
+%     FA30(i) = fa;
+%     pd = 0;
+%     fa = 0;
+%     patamar = patamar + psoma;
+% end
+% 
+% %% ROC Filtro Casado 1
+% 
+% 
+% FcSinal = muonMa1(:,2);
+% FcRuido = noiseMa1(:,2);
+% 
+% pmin = min(FcSinal);
+% pmax = max(FcSinal);
+% pontos = 1000;
+% 
+% psoma = (pmax+abs(pmin))/pontos;
+% patamar = pmin;
+% PD31 = zeros(pontos,1);
+% FA31 = zeros(pontos,1);
+% pd = 0;
+% fa = 0;
+% 
+% for i=1:pontos  % patamar variando em 2000 pontos
+%     for j=1:size(FcRuido,1)
+%         if FcSinal(j) > patamar
+%             pd = pd + 1;
+%         end 
+%         if FcRuido(j) > patamar
+%             fa = fa + 1;
+%         end
+%     end
+%     pd = pd*100/size(FcSinal,1);
+%     fa = fa*100/size(FcRuido,1);
+%     PD31(i) = pd; % preenchendo o vetor
+%     FA31(i) = fa;
+%     pd = 0;
+%     fa = 0;
+%     patamar = patamar + psoma;
+% end
+% 
+% %% ROC Filtro Casado 2
+% 
+% 
+% FcSinal = muonMa1(:,3);
+% FcRuido = noiseMa1(:,3);
+% 
+% pmin = min(FcSinal);
+% pmax = max(FcSinal);
+% pontos = 1000;
+% 
+% psoma = (pmax+abs(pmin))/pontos;
+% patamar = pmin;
+% PD32 = zeros(pontos,1);
+% FA32 = zeros(pontos,1);
+% pd = 0;
+% fa = 0;
+% 
+% for i=1:pontos  % patamar variando em 2000 pontos
+%     for j=1:size(FcRuido,1)
+%         if FcSinal(j) > patamar
+%             pd = pd + 1;
+%         end 
+%         if FcRuido(j) > patamar
+%             fa = fa + 1;
+%         end
+%     end
+%     pd = pd*100/size(FcSinal,1);
+%     fa = fa*100/size(FcRuido,1);
+%     PD32(i) = pd; % preenchendo o vetor
+%     FA32(i) = fa;
+%     pd = 0;
+%     fa = 0;
+%     patamar = patamar + psoma;
+% end
+% 
+% %% ROC Filtro Casado 3
+% 
+% 
+% FcSinal = muonMa1(:,4);
+% FcRuido = noiseMa1(:,4);
+% 
+% pmin = min(FcSinal);
+% pmax = max(FcSinal);
+% pontos = 1000;
+% 
+% psoma = (pmax+abs(pmin))/pontos;
+% patamar = pmin;
+% PD33 = zeros(pontos,1);
+% FA33 = zeros(pontos,1);
+% pd = 0;
+% fa = 0;
+% 
+% for i=1:pontos  % patamar variando em 2000 pontos
+%     for j=1:size(FcRuido,1)
+%         if FcSinal(j) > patamar
+%             pd = pd + 1;
+%         end 
+%         if FcRuido(j) > patamar
+%             fa = fa + 1;
+%         end
+%     end
+%     pd = pd*100/size(FcSinal,1);
+%     fa = fa*100/size(FcRuido,1);
+%     PD33(i) = pd; % preenchendo o vetor
+%     FA33(i) = fa;
+%     pd = 0;
+%     fa = 0;
+%     patamar = patamar + psoma;
+% end
+
+
+
+% %%
+% 
+% figure
+% subplot(2,2,1)
+% plot(FA10, PD10, '-r', 'LineWidth', 2);
+% hold on
+% plot(FA30, PD30, '-.b', 'LineWidth', 2);
+% grid
+% title('ROC - Channel 0')
+% legend('Stochastic Filter', 'Matched Filter');
+% xlabel('% FA')
+% ylabel('% PD')
+% 
+% subplot(2,2,2)
+% plot(FA11, PD11, '-r', 'LineWidth', 2);
+% hold on
+% plot(FA31, PD31, '-.b', 'LineWidth', 2);
+% grid
+% title('ROC - Channel 1')
+% legend('Stochastic Filter', 'Matched Filter');
+% xlabel('% FA')
+% ylabel('% PD')
+% 
+% subplot(2,2,3)
+% plot(FA12, PD12, '-r', 'LineWidth', 2);
+% hold on
+% plot(FA32, PD32, '-.b', 'LineWidth', 2);
+% grid
+% title('ROC - Channel 2')
+% legend('Stochastic Filter', 'Matched Filter');
+% xlabel('% FA')
+% ylabel('% PD')
+% 
+% subplot(2,2,4)
+% plot(FA13, PD13, '-r', 'LineWidth', 2);
+% hold on
+% plot(FA33, PD33, '-.b', 'LineWidth', 2);
+% grid
+% title('ROC - Channel 3')
+% legend('Stochastic Filter', 'Matched Filter');
+% xlabel('% FA')
+% ylabel('% PD')
+
+%% ROC1
+
+pmin = min(FCestSinal);
+pmax = max(FCestRuido);
+pontos = 4000;
+
+psoma = (pmax+abs(pmin))/pontos;
+patamar = pmin;
+PD7 = zeros(pontos,1);
+FA7 = zeros(pontos,1);
+pd = 0;
+fa = 0;
+
+for i=1:pontos  % patamar variando em x pontos
+    for j=1:size(FCestRuido,1)
+        if FCestSinal(j) > patamar
+            pd = pd + 1;
+        end 
+        if FCestRuido(j) > patamar
+            fa = fa + 1;
+        end
+    end
+    pd = pd*100/size(FCestSinal,1);
+    fa = fa*100/size(FCestRuido,1);
+    PD7(i) = pd; % preenchendo o vetor
+    FA7(i) = fa;
+    pd = 0;
+    fa = 0;
+    patamar = patamar + psoma;
+end
+
+
+
+plot(FA1, PD1, '-r', 'LineWidth', 2);
 hold on
 plot(FA3, PD3, '-.g', 'LineWidth', 2);
-
 hold on
-plot(FA, PD, '-mx');
-
-
+plot(FA7, PD7, '-.k', 'LineWidth', 2);
 grid
-title('ROC - Channel')
-legend('Stochastic Filter', 'Deterministic Component', 'Matched Filter', 'Stochastic Component');
-% legend('Stochastic Filter', 'Matched Filter');
-xlabel('% FA')
-ylabel('% PD')
-
-
-
+% title('ROC - Module 0 by channel')
+% legend('New StochFilter (channel)', 'Matched Filter', 'Old StochFilter (channel)');
+% xlabel('% FA')
+% ylabel('% PD')

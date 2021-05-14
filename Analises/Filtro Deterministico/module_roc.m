@@ -1,5 +1,5 @@
 clear all;
-close all;
+% close all;
 clc;
 
 %% Carregando arquivos
@@ -244,7 +244,18 @@ for i=1:size(sinalDes3)
     end
 end
 
-F = FL0C0M0(1:1564,:) + FL0C1M0(1:1564,:) + FL0C2M0(1:1564,:) + FL0C3M0(1:1564,:);
+% F = FL0C0M0(1:1564,:) + FL0C1M0(1:1564,:) + FL0C2M0(1:1564,:) + FL0C3M0(1:1564,:);
+
+%em vez de filtrar cada canal separado e depois somar, vou filtrar pelo
+%modulo, dessa forma garanto que o indice do pulso para os 4 canais é o
+%mesmo
+
+F = [];
+for i=1:size(sinalDes)
+    if (Ma1(i,1) + Ma1(i,2) + Ma1(i,3) + Ma1(i,4))>1000
+        F = [F; sinalDes(i,:)];
+    end
+end
 
 % Normalizando os dados:
 
@@ -292,9 +303,13 @@ end
 
 %% PCA
 
-[COEFF, SCORE, LATENT] = pca(NF*W');
+pca_data = NF*W';
 
-N=7;
+[COEFF, SCORE, LATENT] = pca(pca_data); % antes tava usando pca_data, mas só NF fica com Ir melhor
+
+for pc=7:7
+    
+N=pc;
 
 mFC = sm*W';
 
@@ -347,6 +362,37 @@ end
 FCestRuido = IdRuido + IrRuido; % saida do filtro pra deteccao para o ruido
 FCestSinal = IdSinal + IrSinal; % saida do filtro pra deteccao para o sinal
 
+%% estimacao da amplitude 
+    b1 = COEFF(:,1:N)*COEFF(:,1:N)';
+    b2 = (1/No)*(COEFF(:,1:N)*h1*COEFF(:,1:N)');
+    b3 = (mEstimacao*COEFF(:,1:N)')*h2*COEFF(:,1:N)';
+    
+    ampRuido = zeros(size(ruidoTes,1),1);
+    ampSinal = zeros(size(sinalTes,1),1);
+    a = (1/No)*((mEstimacao*COEFF(:,1:N)')*h1*(mEstimacao*COEFF(:,1:N)')');
+    b = (mEstimacao*COEFF(:,1:N)')*h2*(mEstimacao*COEFF(:,1:N)')';
+    cs=0;
+    cr=0;
+    for i=1:size(sinalTes,1)
+        ra = b*b+4*a*FCestSinal(i);
+        if ra<0
+            ra=0;
+            cs=cs+1;
+        end
+        ampSinal(i) = (-b+sqrt(ra))/(2*a); % amplitude do sinal usando a saida do filtro casado
+    end
+    for i=1:size(ruidoTes,1)
+        ra = b*b+4*a*FCestRuido(i);
+        if ra<0
+            ra=0;
+            cr=cr+1;
+        end
+        ampRuido(i) = (-b+sqrt(ra))/(2*a); % amplitude do ruido usando a saida do filtro casado
+    end
+   
+end
+
+
 %% ROC1
 
 pmin = min(FCestSinal);
@@ -380,8 +426,8 @@ end
 
 %% ROC2
 
-pmin = min(IdSinal);
-pmax = max(IdSinal);
+pmin = min(ampSinal);
+pmax = max(ampSinal);
 pontos = 4000;
 
 psoma = (pmax+abs(pmin))/pontos;
@@ -392,16 +438,16 @@ pd = 0;
 fa = 0;
 
 for i=1:pontos  % patamar variando em 2000 pontos
-    for j=1:size(IdRuido,1)
-        if IdSinal(j) > patamar
+    for j=1:size(ampRuido,1)
+        if ampSinal(j) > patamar
             pd = pd + 1;
         end 
-        if IdRuido(j) > patamar
+        if ampRuido(j) > patamar
             fa = fa + 1;
         end
     end
-    pd = pd*100/size(IdSinal,1);
-    fa = fa*100/size(IdRuido,1);
+    pd = pd*100/size(ampSinal,1);
+    fa = fa*100/size(ampRuido,1);
     PD2(i) = pd; % preenchendo o vetor
     FA2(i) = fa;
     pd = 0;
@@ -487,25 +533,30 @@ end
 % stop = 1
 
 %%
-figure
-
-plot(FA1, PD1, '-b*');
-
+% figure
 hold on
-plot(FA2, PD2, '-rs');
+plot(FA1, PD1, '-.b', 'LineWidth', 2);
 
-hold on
-plot(FA3, PD3, '-.g', 'LineWidth', 2);
-
-hold on
-plot(FA, PD, '-mx');
-
-
-grid
-title('ROC - Module')
-legend('Stochastic Filter', 'Deterministic Component', 'Matched Filter', 'Stochastic Component');
+title('ROC - Module 0 by channel')
+legend('New StochFilter (channel)', 'Matched Filter', 'Old StochFilter (channel)', 'Module StochFilter');
 xlabel('% FA')
 ylabel('% PD')
+
+% hold on
+% plot(FA2, PD2, '-rs');
+% 
+% hold on
+% plot(FA3, PD3, '-.g', 'LineWidth', 2);
+
+% hold on
+% plot(FA, PD, '-mx');
+
+
+% grid
+% title('ROC - Module')
+% legend('Stochastic Filter', 'New StochFilter', 'Matched Filter');
+% xlabel('% FA')
+% ylabel('% PD')
 
 % figure
 % plot(LATENT,'-x')
